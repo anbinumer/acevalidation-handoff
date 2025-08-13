@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RTO Assessment Validation</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9ff;
+            --border-color: #e1e5e9;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">🎯</div>
+                <div>
+                    <div class="header-title">Admin Dashboard</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">RTO Assessment Validation</div>
+                </div>
+            </div>
+            
+            <div class="user-section">
+                {% if current_user %}
+                <div class="user-info">
+                    <div class="user-name">{{ current_user.displayName }}</div>
+                    <div class="user-role">{{ current_user.role }}</div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="logout-btn">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-validators">{{ stats.total_validators or 0 }}</div>
+                <div class="stat-label">Total Validators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-validators">{{ stats.active_validators or 0 }}</div>
+                <div class="stat-label">Active Validators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pending-invitations">{{ stats.pending_invitations or 0 }}</div>
+                <div class="stat-label">Pending Invitations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="assessments-validated">{{ stats.assessments_validated or 0 }}</div>
+                <div class="stat-label">Assessments Validated</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Invite Validator Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="card-icon">✉️</span>
+                        Invite Validator
+                    </h2>
+                </div>
+                
+                <form id="invite-form">
+                    <div class="form-group">
+                        <label class="form-label" for="validator-email">Validator Email</label>
+                        <input type="email" id="validator-email" name="email" class="form-input" 
+                               placeholder="validator@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="validator-role">Role</label>
+                        <select id="validator-role" name="role" class="form-select" required>
+                            <option value="">Select Role</option>
+                            <option value="Validator">Validator</option>
+                            <option value="Assessor">Assessor</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Compliance Officer">Compliance Officer</option>
+                            <option value="Training Staff">Training Staff</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="validator-type">Validator Type</label>
+                        <select id="validator-type" name="validator_type" class="form-select" required>
+                            <option value="external">External Validator</option>
+                            <option value="internal">Internal Staff</option>
+                            <option value="expert">Subject Matter Expert</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="rto-id">RTO ID</label>
+                        <input type="text" id="rto-id" name="rto_id" class="form-input" 
+                               placeholder="RTO_123" value="{{ current_user.rto_id or 'RTO_001' }}" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <span>📤</span>
+                        Send Invitation
+                    </button>
+                </form>
+                
+                <div id="invite-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Sending invitation...</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="card-icon">⚡</span>
+                        Quick Actions
+                    </h2>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <a href="{{ url_for('dashboard', session_id='new') }}" class="btn btn-primary">
+                        <span>🎯</span>
+                        Start New Validation
+                    </a>
+                    
+                    <button class="btn btn-secondary" onclick="refreshData()">
+                        <span>🔄</span>
+                        Refresh Data
+                    </button>
+                    
+                    <a href="{{ url_for('export_validator_report') }}" class="btn btn-secondary">
+                        <span>📊</span>
+                        Export Report
+                    </a>
+                    
+                    <button class="btn btn-secondary" onclick="cleanupExpiredInvitations()">
+                        <span>🧹</span>
+                        Cleanup Expired
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Invitations -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="card-icon">⏳</span>
+                    Pending Invitations
+                </h2>
+            </div>
+            
+            <div id="pending-invitations-container">
+                {% if pending_invitations %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Type</th>
+                                <th>Invited By</th>
+                                <th>Date</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invitation in pending_invitations %}
+                            <tr id="invitation-{{ invitation.id }}">
+                                <td>{{ invitation.email }}</td>
+                                <td>{{ invitation.role }}</td>
+                                <td>{{ invitation.validator_type.title() }}</td>
+                                <td>{{ invitation.invited_by }}</td>
+                                <td>{{ invitation.invited_at[:10] }}</td>
+                                <td>{{ invitation.expires_at[:10] }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="cancelInvitation('{{ invitation.id }}')">
+                                        Cancel
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>No Pending Invitations</h3>
+                    <p>All invitations have been processed or none have been sent yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Active Validators -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="card-icon">👥</span>
+                    Active Validators
+                </h2>
+            </div>
+            
+            <div id="active-validators-container">
+                {% if active_validators %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Type</th>
+                                <th>Last Login</th>
+                                <th>Assessments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for validator in active_validators %}
+                            <tr id="validator-{{ validator.id }}">
+                                <td>{{ validator.profile.displayName or 'Unknown' }}</td>
+                                <td>{{ validator.email }}</td>
+                                <td>
+                                    <span class="status-badge status-active">{{ validator.role }}</span>
+                                </td>
+                                <td>{{ validator.validator_type.title() }}</td>
+                                <td>{{ validator.last_login[:10] if validator.last_login else 'Never' }}</td>
+                                <td>{{ validator.validation_stats.assessments_validated or 0 }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" 
+                                            onclick="viewValidatorDetails('{{ validator.id }}')">
+                                        View
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="deactivateValidator('{{ validator.id }}')">
+                                        Deactivate
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">👤</div>
+                    <h3>No Active Validators</h3>
+                    <p>No validators are currently active. Send some invitations to get started!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Alert Container -->
+    <div id="alert-container" style="position: fixed; top: 100px; right: 20px; z-index: 1000;"></div>
+
+    <script>
+        // Invite Validator Form
+        document.getElementById('invite-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const loadingDiv = document.getElementById('invite-loading');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            loadingDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/admin/invite-validator', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Invitation sent successfully!', 'success');
+                    this.reset();
+                    refreshPendingInvitations();
+                    updateStats();
+                } else {
+                    showAlert(result.error || 'Failed to send invitation', 'error');
+                }
+            } catch (error) {
+                showAlert('Error sending invitation: ' + error.message, 'error');
+            } finally {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Utility functions
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            `;
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        async function refreshData() {
+            location.reload();
+        }
+
+        async function refreshPendingInvitations() {
+            try {
+                const response = await fetch('/admin/pending-invitations');
+                const html = await response.text();
+                document.getElementById('pending-invitations-container').innerHTML = html;
+            } catch (error) {
+                console.error('Error refreshing pending invitations:', error);
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/admin/stats');
+                const stats = await response.json();
+                
+                document.getElementById('total-validators').textContent = stats.total_validators || 0;
+                document.getElementById('active-validators').textContent = stats.active_validators || 0;
+                document.getElementById('pending-invitations').textContent = stats.pending_invitations || 0;
+                document.getElementById('assessments-validated').textContent = stats.assessments_validated || 0;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        async function cancelInvitation(invitationId) {
+            if (!confirm('Are you sure you want to cancel this invitation?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/cancel-invitation/${invitationId}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Invitation cancelled successfully', 'success');
+                    document.getElementById(`invitation-${invitationId}`).remove();
+                    updateStats();
+                } else {
+                    showAlert(result.error || 'Failed to cancel invitation', 'error');
+                }
+            } catch (error) {
+                showAlert('Error cancelling invitation: ' + error.message, 'error');
+            }
+        }
+
+        async function deactivateValidator(validatorId) {
+            if (!confirm('Are you sure you want to deactivate this validator?')) {
+                return;
+            }
+            
+            const reason = prompt('Reason for deactivation (optional):');
+            
+            try {
+                const response = await fetch(`/admin/deactivate-validator/${validatorId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason || '' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Validator deactivated successfully', 'success');
+                    document.getElementById(`validator-${validatorId}`).remove();
+                    updateStats();
+                } else {
+                    showAlert(result.error || 'Failed to deactivate validator', 'error');
+                }
+            } catch (error) {
+                showAlert('Error deactivating validator: ' + error.message, 'error');
+            }
+        }
+
+        async function cleanupExpiredInvitations() {
+            if (!confirm('Remove all expired invitations? This cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/cleanup-expired', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`Removed ${result.count} expired invitations`, 'success');
+                    refreshPendingInvitations();
+                    updateStats();
+                } else {
+                    showAlert(result.error || 'Failed to cleanup expired invitations', 'error');
+                }
+            } catch (error) {
+                showAlert('Error cleaning up invitations: ' + error.message, 'error');
+            }
+        }
+
+        function viewValidatorDetails(validatorId) {
+            // This would open a modal or navigate to a details page
+            showAlert('Validator details view coming soon!', 'info');
+        }
+    </script>
+</body>
+</html>

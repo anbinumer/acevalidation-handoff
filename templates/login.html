@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTO Assessment Validation - Login</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --border-radius: 15px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 3rem 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+        
+        h1 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: #0078d4;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+        }
+        
+        .login-btn:hover {
+            background: #106ebe;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .microsoft-icon {
+            margin-right: 0.75rem;
+            font-size: 1.3rem;
+        }
+        
+        .features {
+            margin-top: 2.5rem;
+            text-align: left;
+        }
+
+        .features-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 0.75rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .feature-icon {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .invitation-notice {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .invitation-notice h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .invitation-notice p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .security-info {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .powered-by {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading state */
+        .login-btn.loading {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .login-btn.loading:hover {
+            transform: none;
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">🎯</div>
+        <h1>RTO Assessment Validation</h1>
+        <p class="subtitle">AI-Assisted Mapping for ASQA Audits<br>Secure Professional Platform</p>
+        
+        <a href="{{ url_for('login') }}" class="login-btn" id="login-btn">
+            <span class="microsoft-icon">🏢</span>
+            Sign in with Microsoft
+        </a>
+
+        <div class="invitation-notice">
+            <h3>🔐 Validator Access Required</h3>
+            <p>Access to this system requires an invitation from your RTO administrator. If you believe you should have access but haven't received an invitation, please contact your organization's training compliance team.</p>
+        </div>
+        
+        <div class="features">
+            <div class="features-title">Platform Features</div>
+            <div class="feature">
+                <span class="feature-icon">✅</span>
+                Works with your existing Microsoft account
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔒</span>
+                Enterprise-grade security and authentication
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📊</span>
+                ASQA audit-ready documentation and reporting
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🤖</span>
+                AI-assisted validation with human oversight
+            </div>
+            <div class="feature">
+                <span class="feature-icon">👥</span>
+                Multi-validator collaborative workflow
+            </div>
+        </div>
+
+        <div class="security-info">
+            <strong>Security Notice:</strong> This application uses Azure Active Directory for secure authentication. Your login credentials are never stored by our system and all data is encrypted in transit and at rest.
+        </div>
+
+        <div class="powered-by">
+            Powered by Azure AD • Built for RTO Excellence
+        </div>
+    </div>
+
+    <script>
+        // Add loading state to login button
+        document.getElementById('login-btn').addEventListener('click', function() {
+            this.classList.add('loading');
+            this.innerHTML = '<span class="microsoft-icon">⏳</span>Signing in...';
+        });
+
+        // Handle any error messages from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+            `;
+            
+            switch(error) {
+                case 'access_denied':
+                    errorDiv.innerHTML = '<strong>Access Denied:</strong> You need a valid invitation to access this system.';
+                    break;
+                case 'invitation_expired':
+                    errorDiv.innerHTML = '<strong>Invitation Expired:</strong> Your invitation has expired. Please contact your administrator for a new one.';
+                    break;
+                case 'no_invitation':
+                    errorDiv.innerHTML = '<strong>No Invitation Found:</strong> Please contact your RTO administrator to receive an invitation.';
+                    break;
+                default:
+                    errorDiv.innerHTML = '<strong>Authentication Error:</strong> ' + decodeURIComponent(error);
+            }
+            
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.parentNode.insertBefore(errorDiv, loginBtn);
+        }
+
+        // Auto-focus on page load for accessibility
+        window.addEventListener('load', function() {
+            document.getElementById('login-btn').focus();
+        });
+    </script>
+</body>
+</html>

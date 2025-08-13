@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation Dashboard - {{ session_data.uoc_code }}</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f8f9fa;
+            --accent-color: #007AFF;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #1a1a1a;
+            --border-color: #e1e5e9;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        [data-theme="dark"] {
+            --primary-color: #ffffff;
+            --secondary-color: #1a1a1a;
+            --accent-color: #0A84FF;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #404040;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+        
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+        
+        small, .small {
+            font-size: 12px;
+        }
+        
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .header-left p {
+            opacity: 0.7;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .theme-toggle {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            color: var(--accent-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0, 122, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .theme-icon {
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .tab-navigation {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            background: var(--secondary-color);
+            border: none;
+            border-right: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button:last-child {
+            border-right: none;
+        }
+        
+        .tab-button.active {
+            background: var(--accent-color);
+            color: white;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .tab-button:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .stat-card h3 {
+            color: var(--accent-color);
+            font-size: 24px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        
+        .stat-card p {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        .questions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .question-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-1px);
+        }
+        
+        .question-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+            transition: background-color 0.2s ease;
+        }
+        
+        .question-header:hover {
+            background: rgba(0, 122, 255, 0.02);
+        }
+        
+        .question-header.expanded {
+            background: rgba(0, 122, 255, 0.05);
+        }
+        
+        .question-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .question-number {
+            font-weight: 700;
+            color: var(--text-color);
+            font-size: 16px;
+            letter-spacing: -0.01em;
+        }
+        
+        .question-type {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        
+        .expand-icon {
+            color: #6b7280;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+        
+        .question-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .question-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .question-content.expanded {
+            display: block;
+            opacity: 1;
+        }
+        
+        .question-text {
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 400;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .mappings-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .section-title {
+            color: var(--text-color);
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .mapping-item {
+            background: rgba(0, 122, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .mapping-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .mapping-code {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 13px;
+        }
+        
+        .alignment-tag {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .alignment-strong {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .alignment-moderate {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .confidence {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .confidence .badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .rationale {
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .discussion-section {
+            padding: 16px 20px;
+        }
+        
+        .discussion-title {
+            color: var(--text-color);
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .discussion-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .discussion-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .comment-count {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .comment {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0, 122, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 13px;
+        }
+        
+        .comment-badge {
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .badge-role {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .timestamp {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .comment-text {
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .no-comments {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .new-comment {
+            margin-top: 16px;
+        }
+        
+        .comment-library {
+            margin-bottom: 12px;
+        }
+        
+        .library-button {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .library-button:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        
+        .comment-library-dropdown {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .library-section {
+            margin-bottom: 12px;
+        }
+        
+        .library-section h4 {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+        
+        .quick-comment {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .quick-comment:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s ease;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .comment-actions {
+            margin-top: 8px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .comment-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .comment-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-mappings {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .no-questions {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .coverage-analysis {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-top: 24px;
+        }
+        
+        .coverage-analysis h3 {
+            color: var(--accent-color);
+            font-size: 20px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .coverage-content {
+            display: none;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .analysis-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .analysis-section h4 {
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .method-distribution, .bloom-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .method-item, .bloom-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .method-name, .bloom-level {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .method-count, .bloom-count {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        
+        .gaps-list, .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .gap-item, .recommendation-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .gap-item.critical {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .gap-icon, .rec-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            color: var(--accent-color);
+        }
+        
+        .gap-content, .rec-content {
+            flex: 1;
+        }
+        
+        .gap-content strong, .rec-content strong {
+            display: block;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .gap-content p, .rec-content p {
+            color: var(--text-color);
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0;
+            opacity: 0.8;
+        }
+        
+        .coverage-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .summary-value {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comments-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .comments-section h4 {
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .comments-list {
+            margin-bottom: 20px;
+        }
+        
+        .comment-entry {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0, 122, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .comment-details {
+            flex: 1;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .commenter-name {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 13px;
+        }
+        
+        .comment-badge {
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .badge-suggestion {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .badge-comment {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .comment-timestamp {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .comment-text {
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .new-comment {
+            margin-top: 16px;
+        }
+        
+        .comment-library {
+            margin-bottom: 12px;
+        }
+        
+        .library-button {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+        
+        .library-button:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        
+        .comment-library-dropdown {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 8px;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .library-section {
+            margin-bottom: 16px;
+        }
+        
+        .library-section h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+        
+        .quick-comment {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 6px 8px;
+            font-size: 12px;
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            margin-bottom: 2px;
+        }
+        
+        .quick-comment:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+        
+        .comment-input {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        
+        .comment-textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s ease;
+            min-height: 80px;
+        }
+        
+        .comment-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .comment-submit {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .comment-submit:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        /* Left Sidebar - Unit Structure */
+        .sidebar {
+            width: 320px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sidebar-content {
+            padding: 16px;
+        }
+        
+        .unit-section {
+            margin-bottom: 24px;
+        }
+        
+        .unit-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .unit-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: var(--text-color);
+            border: 1px solid transparent;
+        }
+        
+        .unit-item:hover {
+            background: rgba(0, 122, 255, 0.05);
+            border-color: rgba(0, 122, 255, 0.2);
+        }
+        
+        .unit-item.active {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .unit-item.sub-item {
+            margin-left: 16px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .unit-item.sub-item:hover {
+            color: var(--text-color);
+        }
+        
+        .unit-item.sub-item.active {
+            color: white;
+        }
+        
+        .item-count {
+            background: #e5e7eb;
+            color: #6b7280;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .unit-item.active .item-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            margin-left: 320px;
+            padding: 20px;
+            min-height: 100vh;
+            background: var(--bg-color);
+        }
+        
+        .content-header {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .filter-info {
+            font-size: 12px;
+            color: #6b7280;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>📚 Unit Structure</h3>
+        </div>
+        <div class="sidebar-content">
+            <!-- All Components Section -->
+            <div class="unit-section">
+                <h4>All Components</h4>
+                <div class="unit-item active" onclick="showAllQuestions()">
+                    Show All Questions
+                </div>
+                <div class="unit-item" onclick="filterByElement('element1')">
+                    Element 1: Plan and implement resource acquisition
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPC('PC 1.1')">
+                    PC 1.1 Identify resource requirements from operational plan
+                    <span class="item-count" id="count-pc1.1">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPC('PC 1.2')">
+                    PC 1.2 Develop procedures for resource acquisition within organisational policy
+                    <span class="item-count" id="count-pc1.2">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPC('PC 1.3')">
+                    PC 1.3 Implement resource acquisition procedures
+                    <span class="item-count" id="count-pc1.3">0 items</span>
+                </div>
+            </div>
+            
+            <div class="unit-section">
+                <h4>Knowledge Evidence</h4>
+                <div class="unit-item sub-item" onclick="filterByKE('KE 1')">
+                    Organisational policies and procedures for resource management
+                    <span class="item-count" id="count-ke1">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByKE('KE 2')">
+                    Budgeting and financial management principles
+                    <span class="item-count" id="count-ke2">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByKE('KE 3')">
+                    Performance monitoring and evaluation techniques
+                    <span class="item-count" id="count-ke3">0 items</span>
+                </div>
+            </div>
+            
+            <div class="unit-section">
+                <h4>Performance Evidence</h4>
+                <div class="unit-item sub-item" onclick="filterByPE('PE 1')">
+                    Develop resource acquisition procedures for at least two different resource types
+                    <span class="item-count" id="count-pe1">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPE('PE 2')">
+                    Implement monitoring processes and collect performance data over a specified period
+                    <span class="item-count" id="count-pe2">0 items</span>
+                </div>
+            </div>
+            
+            <div class="unit-section">
+                <h4>All Components</h4>
+                <div class="unit-item" onclick="filterByElement('element2')">
+                    Element 2: Monitor and review operational performance
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPC('PC 2.1')">
+                    PC 2.1 Monitor operational performance against objectives
+                    <span class="item-count" id="count-pc2.1">0 items</span>
+                </div>
+                <div class="unit-item sub-item" onclick="filterByPC('PC 2.2')">
+                    PC 2.2 Review and evaluate performance data
+                    <span class="item-count" id="count-pc2.2">0 items</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>Validation Dashboard</h1>
+                    <p>Review and validate mappings for {{ session_data.uoc_code }}</p>
+                </div>
+                <div class="header-right">
+                    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">
+                        <span class="theme-icon">🌙</span>
+                        <span class="theme-text">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="switchTab('questions')" id="tab-questions">
+                Assessment Items
+            </button>
+            <button class="tab-button" onclick="switchTab('coverage')" id="tab-coverage">
+                Coverage Analysis
+            </button>
+            <button class="tab-button" onclick="switchTab('compliance')" id="tab-compliance">
+                Compliance Review
+            </button>
+        </div>
+        
+        <!-- Questions Tab Content -->
+        <div class="tab-content active" id="questions-tab">
+            <!-- Search and Filter Bar -->
+            <div class="content-header">
+                <div class="search-filter-bar">
+                    <input type="text" class="search-input" placeholder="🔍 Search assessment items..." onkeyup="filterQuestions(this.value)">
+                    <select class="filter-dropdown">
+                        <option>View: Current Version</option>
+                    </select>
+                    <div class="filter-info">Showing all questions</div>
+                    <select class="filter-dropdown">
+                        <option>All Tools</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Questions Grid -->
+            <div class="questions-grid" id="questionsGrid">
+                    {% if session_data.mappings %}
+                    {% for mapping in session_data.mappings %}
+                        {% if mapping.question_id and mapping.mapping_analysis %}
+                        <div class="question-card" data-question-id="{{ mapping.question_id }}" 
+                             data-pc-mappings="{% for pc in mapping.mapping_analysis.mapped_performance_criteria %}{{ pc.criterion_id }}{% if not loop.last %},{% endif %}{% endfor %}"
+                             data-ke-mappings="{% for ke in mapping.mapping_analysis.mapped_knowledge_evidence %}{{ ke.evidence_id }}{% if not loop.last %},{% endif %}{% endfor %}"
+                             data-pe-mappings="{% for pe in mapping.mapping_analysis.mapped_performance_evidence %}{{ pe.evidence_id }}{% if not loop.last %},{% endif %}{% endfor %}">
+                            <div class="question-header" onclick="toggleQuestionCard(this)">
+                                <div class="question-info">
+                                    <div class="question-number">Question {{ mapping.question_id }}</div>
+                                    <div class="question-type">{{ session_data.assessment_type }}</div>
+                                </div>
+                                <div class="expand-icon">▼</div>
+                            </div>
+                            
+                            <div class="question-content">
+                                <div class="question-text">
+                                    {{ mapping.question_text or 'Question text not available' }}
+                                </div>
+                                
+                                {% if mapping.mapping_analysis %}
+                                <div class="mappings-section">
+                                    <h4 class="section-title">Performance Criteria</h4>
+                                    {% for pc in mapping.mapping_analysis.mapped_performance_criteria %}
+                                        {% if pc.criterion_id and pc.criterion_description %}
+                                        <div class="mapping-item">
+                                            <div class="mapping-header">
+                                                <span class="mapping-code">{{ pc.criterion_id }}</span>
+                                                <span class="alignment-tag">Performance</span>
+                                            </div>
+                                            <div class="mapping-description">{{ pc.criterion_description }}</div>
+                                            <div class="mapping-confidence">
+                                                <span class="confidence-label">Mapping Confidence:</span>
+                                                <span class="confidence-score">{{ "%.1f"|format(pc.confidence_score * 100) }}%</span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    <h4 class="section-title">Knowledge Evidence</h4>
+                                    {% for ke in mapping.mapping_analysis.mapped_knowledge_evidence %}
+                                        {% if ke.evidence_id and ke.evidence_description %}
+                                        <div class="mapping-item">
+                                            <div class="mapping-header">
+                                                <span class="mapping-code">{{ ke.evidence_id }}</span>
+                                                <span class="alignment-tag">Knowledge</span>
+                                            </div>
+                                            <div class="mapping-description">{{ ke.evidence_description }}</div>
+                                            <div class="mapping-confidence">
+                                                <span class="confidence-label">Mapping Confidence:</span>
+                                                <span class="confidence-score">{{ "%.1f"|format(ke.confidence_score * 100) }}%</span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if not mapping.mapping_analysis.mapped_performance_criteria and not mapping.mapping_analysis.mapped_knowledge_evidence %}
+                                    <div class="no-mappings">
+                                        <p>No mappings available for this question.</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                                                 <!-- Validation Discussion Section -->
+                                 <div class="comments-section">
+                                     <h4 class="section-title">Validation Discussion</h4>
+                                     <div class="comments-list" id="comments-{{ mapping.question_id }}">
+                                         <!-- Sample comments for demonstration -->
+                                         <div class="comment-entry">
+                                             <div class="comment-avatar">SC</div>
+                                             <div class="comment-details">
+                                                 <div class="comment-header">
+                                                     <div style="display: flex; align-items: center; gap: 8px;">
+                                                         <span class="commenter-name">Sarah Chen</span>
+                                                         <span class="comment-badge badge-suggestion">suggestion</span>
+                                                     </div>
+                                                     <span class="comment-timestamp">15/01/2024</span>
+                                                 </div>
+                                                 <div class="comment-text">I've added KE1 mapping as prioritization requires policy knowledge. Thoughts?</div>
+                                             </div>
+                                         </div>
+                                         <div class="comment-entry">
+                                             <div class="comment-avatar">MJ</div>
+                                             <div class="comment-details">
+                                                 <div class="comment-header">
+                                                     <div style="display: flex; align-items: center; gap: 8px;">
+                                                         <span class="commenter-name">Mike Johnson</span>
+                                                         <span class="comment-badge badge-comment">comment</span>
+                                                     </div>
+                                                     <span class="comment-timestamp">16/01/2024</span>
+                                                 </div>
+                                                 <div class="comment-text">Good catch! The prioritization aspect definitely requires policy understanding.</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="new-comment">
+                                         <div class="comment-library">
+                                             <button class="library-button" onclick="toggleCommentLibrary('{{ mapping.question_id }}')">
+                                                 Quick Comments
+                                             </button>
+                                             <div class="comment-library-dropdown" id="library-{{ mapping.question_id }}">
+                                                 <div class="library-section">
+                                                     <h4>Validation Comments</h4>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Mapping looks accurate and comprehensive.')">Mapping looks accurate and comprehensive.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Good alignment with performance criteria.')">Good alignment with performance criteria.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Question effectively assesses the required knowledge.')">Question effectively assesses the required knowledge.</button>
+                                                 </div>
+                                                 <div class="library-section">
+                                                     <h4>Suggestions</h4>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Consider adding more specific performance criteria.')">Consider adding more specific performance criteria.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Question could be more specific to workplace scenarios.')">Question could be more specific to workplace scenarios.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'May need additional knowledge evidence mapping.')">May need additional knowledge evidence mapping.</button>
+                                                 </div>
+                                                 <div class="library-section">
+                                                     <h4>Concerns</h4>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Mapping confidence seems too high for this question.')">Mapping confidence seems too high for this question.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Question may not adequately assess the competency.')">Question may not adequately assess the competency.</button>
+                                                     <button class="quick-comment" onclick="addQuickComment('{{ mapping.question_id }}', 'Missing critical performance criteria mapping.')">Missing critical performance criteria mapping.</button>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="comment-input">
+                                             <textarea placeholder="Add your comment or suggestion..." id="comment-input-{{ mapping.question_id }}" class="comment-textarea"></textarea>
+                                             <button onclick="submitComment('{{ mapping.question_id }}')" class="comment-submit">
+                                                 💬 Comment
+                                             </button>
+                                         </div>
+                                     </div>
+                                 </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="no-questions">
+                        <p>No questions available for validation.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coverage Analysis Tab Content -->
+        <div class="tab-content" id="coverage-tab">
+            <div class="coverage-analysis">
+                <div class="loading-spinner" id="coverage-loading">
+                    <div class="spinner"></div>
+                    <p>Loading coverage analysis...</p>
+                </div>
+                <div class="coverage-content" id="coverage-content" style="display: none;">
+                    <!-- Coverage analysis will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle question card expansion (accordion style)
+        function toggleQuestionCard(header) {
+            console.log('toggleQuestionCard called');
+            const card = header.closest('.question-card');
+            const content = card.querySelector('.question-content');
+            const expandIcon = header.querySelector('.expand-icon');
+            
+            // Check if this card is already expanded
+            const isCurrentlyExpanded = content.classList.contains('expanded');
+            console.log('Is currently expanded:', isCurrentlyExpanded);
+            console.log('Content classes before:', content.className);
+            console.log('Content display before:', content.style.display);
+            
+            // Close all other cards first (accordion behavior)
+            document.querySelectorAll('.question-card').forEach(function(otherCard) {
+                if (otherCard !== card) {
+                    const otherHeader = otherCard.querySelector('.question-header');
+                    const otherContent = otherCard.querySelector('.question-content');
+                    const otherIcon = otherHeader.querySelector('.expand-icon');
+                    
+                    otherHeader.classList.remove('expanded');
+                    otherContent.classList.remove('expanded');
+                    otherContent.style.setProperty('display', 'none', 'important');
+                    otherContent.style.setProperty('opacity', '0', 'important');
+                    otherIcon.textContent = '▼';
+                }
+            });
+            
+            // Toggle current card
+            if (isCurrentlyExpanded) {
+                header.classList.remove('expanded');
+                content.classList.remove('expanded');
+                content.style.setProperty('opacity', '0', 'important');
+                content.style.setProperty('display', 'none', 'important');
+                expandIcon.textContent = '▼';
+                console.log('Card collapsed');
+            } else {
+                header.classList.add('expanded');
+                content.classList.add('expanded');
+                expandIcon.textContent = '▲';
+                console.log('Card expanded');
+                
+                // Force display to block immediately
+                content.style.setProperty('display', 'block', 'important');
+                content.style.setProperty('opacity', '1', 'important');
+                console.log('Content classes after:', content.className);
+                console.log('Content display after:', content.style.display);
+            }
+        }
+        
+        // Toggle comment library
+        function toggleCommentLibrary(questionId) {
+            const library = document.getElementById(`library-${questionId}`);
+            const isVisible = library.style.display === 'block';
+            
+            // Close all other libraries first
+            document.querySelectorAll('.comment-library-dropdown').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+            
+            // Toggle current library
+            library.style.display = isVisible ? 'none' : 'block';
+        }
+        
+        // Add quick comment to textarea
+        function addQuickComment(questionId, comment) {
+            const textarea = document.getElementById(`comment-input-${questionId}`);
+            const currentValue = textarea.value.trim();
+            
+            // If there's already text, add a newline before the new comment
+            if (currentValue) {
+                textarea.value = currentValue + '\n\n' + comment;
+            } else {
+                textarea.value = comment;
+            }
+            
+            // Focus the textarea
+            textarea.focus();
+            
+            // Hide the library dropdown
+            const library = document.getElementById(`library-${questionId}`);
+            library.style.display = 'none';
+            
+            // Show success feedback
+            showNotification('Quick comment added to textarea', 'success');
+        }
+        
+        // Submit comment
+        function submitComment(questionId) {
+            const textarea = document.getElementById(`comment-input-${questionId}`);
+            const comment = textarea.value.trim();
+            
+            if (!comment) {
+                showNotification('Please enter a comment', 'error');
+                return;
+            }
+            
+            // Here you would typically send the comment to the server
+            console.log(`Submitting comment for question ${questionId}:`, comment);
+            
+            // For demonstration, add the comment to the comments list
+            const commentsList = document.getElementById(`comments-${questionId}`);
+            const newComment = document.createElement('div');
+            newComment.className = 'comment-entry';
+            newComment.innerHTML = `
+                <div class="comment-avatar">CU</div>
+                <div class="comment-details">
+                    <div class="comment-header">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="commenter-name">Current User</span>
+                            <span class="comment-badge badge-comment">comment</span>
+                        </div>
+                        <span class="comment-timestamp">${new Date().toLocaleDateString()}</span>
+                    </div>
+                    <div class="comment-text">${comment}</div>
+                </div>
+            `;
+            
+            // Add the new comment to the top of the list
+            commentsList.insertBefore(newComment, commentsList.firstChild);
+            
+            // Clear the textarea
+            textarea.value = '';
+            
+            // Show success feedback
+            showNotification('Comment submitted successfully!', 'success');
+        }
+        
+        // Show all questions
+        function showAllQuestions() {
+            const questions = document.querySelectorAll('.question-card');
+            questions.forEach(question => {
+                question.style.display = 'block';
+            });
+            
+            // Remove active class from all items
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = 'Showing all questions';
+            }
+            
+            showNotification('Showing all questions', 'success');
+        }
+        
+        // Filter by Element
+        function filterByElement(elementId) {
+            // Remove active class from all items
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked element
+            event.target.classList.add('active');
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = `Filtered by: ${elementId}`;
+            }
+            
+            // Filter questions based on element
+            filterQuestionsByElement(elementId);
+            
+            console.log(`Filtering by element: ${elementId}`);
+        }
+        
+        // Filter by Performance Criteria
+        function filterByPC(pcId) {
+            // Remove active class from all items
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked PC
+            event.target.classList.add('active');
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = `Filtered by: ${pcId}`;
+            }
+            
+            // Filter questions based on PC
+            filterQuestionsByPC(pcId);
+            
+            console.log(`Filtering by PC: ${pcId}`);
+        }
+        
+        // Filter by Knowledge Evidence
+        function filterByKE(keId) {
+            // Remove active class from all items
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked KE
+            event.target.classList.add('active');
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = `Filtered by: ${keId}`;
+            }
+            
+            // Filter questions based on KE
+            filterQuestionsByKE(keId);
+            
+            console.log(`Filtering by KE: ${keId}`);
+        }
+        
+        // Filter by Performance Evidence
+        function filterByPE(peId) {
+            // Remove active class from all items
+            document.querySelectorAll('.unit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked PE
+            event.target.classList.add('active');
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = `Filtered by: ${peId}`;
+            }
+            
+            // Filter questions based on PE
+            filterQuestionsByPE(peId);
+            
+            console.log(`Filtering by PE: ${peId}`);
+        }
+        
+        // Filter questions by element
+        function filterQuestionsByElement(elementId) {
+            const questions = document.querySelectorAll('.question-card');
+            let visibleCount = 0;
+            
+            questions.forEach(question => {
+                // For element filtering, show questions that have any mappings
+                const hasMappings = question.getAttribute('data-pc-mappings') || 
+                                   question.getAttribute('data-ke-mappings') || 
+                                   question.getAttribute('data-pe-mappings');
+                
+                if (hasMappings) {
+                    question.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            showNotification(`Showing ${visibleCount} questions for ${elementId}`, 'success');
+        }
+        
+        // Filter questions by PC
+        function filterQuestionsByPC(pcId) {
+            const questions = document.querySelectorAll('.question-card');
+            let visibleCount = 0;
+            
+            questions.forEach(question => {
+                const pcMappings = question.getAttribute('data-pc-mappings');
+                if (pcMappings && pcMappings.includes(pcId)) {
+                    question.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            showNotification(`Showing ${visibleCount} questions mapped to ${pcId}`, 'success');
+        }
+        
+        // Filter questions by KE
+        function filterQuestionsByKE(keId) {
+            const questions = document.querySelectorAll('.question-card');
+            let visibleCount = 0;
+            
+            questions.forEach(question => {
+                const keMappings = question.getAttribute('data-ke-mappings');
+                if (keMappings && keMappings.includes(keId)) {
+                    question.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            showNotification(`Showing ${visibleCount} questions mapped to ${keId}`, 'success');
+        }
+        
+        // Filter questions by PE
+        function filterQuestionsByPE(peId) {
+            const questions = document.querySelectorAll('.question-card');
+            let visibleCount = 0;
+            
+            questions.forEach(question => {
+                const peMappings = question.getAttribute('data-pe-mappings');
+                if (peMappings && peMappings.includes(peId)) {
+                    question.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            showNotification(`Showing ${visibleCount} questions mapped to ${peId}`, 'success');
+        }
+        
+        // Search questions by text
+        function filterQuestions(searchTerm) {
+            const questions = document.querySelectorAll('.question-card');
+            let visibleCount = 0;
+            
+            questions.forEach(question => {
+                const questionText = question.querySelector('.question-text').textContent.toLowerCase();
+                const questionNumber = question.querySelector('.question-number').textContent.toLowerCase();
+                
+                if (questionText.includes(searchTerm.toLowerCase()) || 
+                    questionNumber.includes(searchTerm.toLowerCase())) {
+                    question.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            // Update filter info
+            const filterInfo = document.querySelector('.filter-info');
+            if (filterInfo) {
+                filterInfo.textContent = searchTerm ? `Search results for: "${searchTerm}"` : 'Showing all questions';
+            }
+        }
+        
+        // Calculate and update item counts
+        function updateItemCounts() {
+            const questions = document.querySelectorAll('.question-card');
+            
+            // Initialize counts
+            const counts = {
+                'PC 1.1': 0, 'PC 1.2': 0, 'PC 1.3': 0,
+                'PC 2.1': 0, 'PC 2.2': 0,
+                'KE 1': 0, 'KE 2': 0, 'KE 3': 0,
+                'PE 1': 0, 'PE 2': 0
+            };
+            
+            // Count mappings for each question
+            questions.forEach(question => {
+                const pcMappings = question.getAttribute('data-pc-mappings');
+                const keMappings = question.getAttribute('data-ke-mappings');
+                const peMappings = question.getAttribute('data-pe-mappings');
+                
+                if (pcMappings) {
+                    pcMappings.split(',').forEach(pc => {
+                        const pcId = pc.trim();
+                        if (counts.hasOwnProperty(pcId)) {
+                            counts[pcId]++;
+                        }
+                    });
+                }
+                
+                if (keMappings) {
+                    keMappings.split(',').forEach(ke => {
+                        const keId = ke.trim();
+                        if (counts.hasOwnProperty(keId)) {
+                            counts[keId]++;
+                        }
+                    });
+                }
+                
+                if (peMappings) {
+                    peMappings.split(',').forEach(pe => {
+                        const peId = pe.trim();
+                        if (counts.hasOwnProperty(peId)) {
+                            counts[peId]++;
+                        }
+                    });
+                }
+            });
+            
+            // Update display
+            Object.keys(counts).forEach(key => {
+                const countElement = document.getElementById(`count-${key.toLowerCase().replace(' ', '')}`);
+                if (countElement) {
+                    countElement.textContent = `${counts[key]} items`;
+                }
+            });
+        }
+        
+        // Theme switching functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-icon');
+            const themeText = themeToggle.querySelector('.theme-text');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-icon');
+            const themeText = themeToggle.querySelector('.theme-text');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            }
+            
+            // Update item counts
+            updateItemCounts();
+        });
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 16px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                max-width: 300px;
+                font-size: 13px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(`${tabName}-tab`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Add active class to selected tab button
+            const selectedButton = document.getElementById(`tab-${tabName}`);
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+            
+            // Load coverage analysis if switching to coverage tab
+            if (tabName === 'coverage') {
+                loadCoverageAnalysis();
+            }
+        }
+        
+        // Load coverage analysis from API
+        function loadCoverageAnalysis() {
+            const sessionId = '{{ session_data.session_id }}';
+            const loadingSpinner = document.getElementById('coverage-loading');
+            const coverageContent = document.getElementById('coverage-content');
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            coverageContent.style.display = 'none';
+            
+            fetch(`/api/validation/${sessionId}/coverage-analysis`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingSpinner.style.display = 'none';
+                    
+                    if (data.success) {
+                        displayCoverageAnalysis(data.coverage_analysis);
+                        coverageContent.style.display = 'block';
+                    } else {
+                        showNotification('Failed to load coverage analysis: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    loadingSpinner.style.display = 'none';
+                    showNotification('Error loading coverage analysis: ' + error.message, 'error');
+                    console.error('Error loading coverage analysis:', error);
+                });
+        }
+        
+        // Display coverage analysis data
+        function displayCoverageAnalysis(analysis) {
+            const coverageContent = document.getElementById('coverage-content');
+            
+            let html = '<h3>Coverage Analysis</h3>';
+            
+            // Assessment Method Distribution
+            if (analysis.assessment_method_analysis && analysis.assessment_method_analysis.distribution) {
+                html += '<div class="analysis-section">';
+                html += '<h4>Assessment Method Distribution</h4>';
+                html += '<div class="method-distribution">';
+                for (const [method, count] of Object.entries(analysis.assessment_method_analysis.distribution)) {
+                    const percentage = analysis.assessment_method_analysis.percentages[method] || 0;
+                    html += `<div class="method-item">
+                        <span class="method-name">${method}</span>
+                        <span class="method-count">${count} (${percentage.toFixed(1)}%)</span>
+                    </div>`;
+                }
+                html += '</div></div>';
+            }
+            
+            // Bloom's Taxonomy Analysis
+            if (analysis.competency_progression_analysis && analysis.competency_progression_analysis.bloom_distribution) {
+                html += '<div class="analysis-section">';
+                html += '<h4>Bloom\'s Taxonomy Distribution</h4>';
+                html += '<div class="bloom-distribution">';
+                for (const [level, count] of Object.entries(analysis.competency_progression_analysis.bloom_distribution)) {
+                    const percentage = analysis.competency_progression_analysis.bloom_percentages[level] || 0;
+                    html += `<div class="bloom-item">
+                        <span class="bloom-level">${level}</span>
+                        <span class="bloom-count">${count} (${percentage.toFixed(1)}%)</span>
+                    </div>`;
+                }
+                html += '</div></div>';
+            }
+            
+            // Critical Gaps
+            if (analysis.critical_coverage_issues && analysis.critical_coverage_issues.length > 0) {
+                html += '<div class="analysis-section">';
+                html += '<h4>Critical Gaps</h4>';
+                html += '<div class="gaps-list">';
+                analysis.critical_coverage_issues.forEach(gap => {
+                    html += `<div class="gap-item critical">
+                        <span class="gap-icon">!</span>
+                        <div class="gap-content">
+                            <strong>Critical Issue</strong>
+                            <p>${gap}</p>
+                        </div>
+                    </div>`;
+                });
+                html += '</div></div>';
+            }
+            
+            // Assessment Method Gaps
+            if (analysis.assessment_method_gaps && analysis.assessment_method_gaps.length > 0) {
+                html += '<div class="analysis-section">';
+                html += '<h4>Assessment Method Gaps</h4>';
+                html += '<div class="gaps-list">';
+                analysis.assessment_method_gaps.forEach(gap => {
+                    html += `<div class="gap-item">
+                        <span class="gap-icon">→</span>
+                        <div class="gap-content">
+                            <strong>Method Gap</strong>
+                            <p>${gap}</p>
+                        </div>
+                    </div>`;
+                });
+                html += '</div></div>';
+            }
+            
+            // Element Coverage Quality
+            if (analysis.element_coverage_quality && analysis.element_coverage_quality.coverage_summary) {
+                html += '<div class="analysis-section">';
+                html += '<h4>Element Coverage Quality</h4>';
+                html += '<div class="coverage-summary">';
+                const summary = analysis.element_coverage_quality.coverage_summary;
+                if (summary.total_elements) {
+                    html += `<div class="summary-item">
+                        <span class="summary-label">Total Elements:</span>
+                        <span class="summary-value">${summary.total_elements}</span>
+                    </div>`;
+                }
+                if (summary.covered_elements) {
+                    html += `<div class="summary-item">
+                        <span class="summary-label">Covered Elements:</span>
+                        <span class="summary-value">${summary.covered_elements}</span>
+                    </div>`;
+                }
+                if (summary.coverage_percentage) {
+                    html += `<div class="summary-item">
+                        <span class="summary-label">Coverage Percentage:</span>
+                        <span class="summary-value">${summary.coverage_percentage.toFixed(1)}%</span>
+                    </div>`;
+                }
+                html += '</div></div>';
+            }
+            
+            coverageContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

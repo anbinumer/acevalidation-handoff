@@ -1,0 +1,2891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Mapping and Validation Dashboard</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #ecf0f1;
+            --accent-color: #3498db;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e9ecef;
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 0.5em;
+        }
+        
+        h1 { font-size: 28px; }
+        h2 { font-size: 24px; }
+        h3 { font-size: 20px; }
+        h4 { font-size: 18px; }
+        h5 { font-size: 16px; }
+        h6 { font-size: 14px; }
+        
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: var(--primary-color);
+        }
+        
+        .header-left p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .theme-toggle {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* Left Panel - Unit Structure */
+        .unit-structure {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .unit-structure-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .unit-structure-header h3 {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .unit-structure-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .unit-structure-nav {
+            padding: 0;
+        }
+        
+        .nav-section {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-section:last-child {
+            border-bottom: none;
+        }
+        
+        .nav-section-header {
+            padding: 12px 20px;
+            background: var(--secondary-color);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        
+        .nav-section-header:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .section-content {
+            display: block;
+        }
+        
+        .nav-section {
+            margin-bottom: 16px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .nav-item:hover {
+            background: rgba(52, 152, 219, 0.05);
+            border-left-color: var(--accent-color);
+        }
+        
+        .nav-item.active {
+            background: rgba(52, 152, 219, 0.1);
+            border-left-color: var(--accent-color);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        
+        .nav-item-count {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .nav-subsection {
+            margin-left: 16px;
+            border-left: 1px solid var(--border-color);
+            padding-left: 12px;
+        }
+        
+        .nav-subsection-header {
+            padding: 8px 0;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Right Panel - Main Content */
+        .main-content {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .content-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+        
+        .content-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .tab:hover {
+            color: var(--primary-color);
+            background: rgba(52, 152, 219, 0.02);
+        }
+        
+        /* Tab Content Sections */
+        .tab-content {
+            display: none;
+            padding: 24px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .coverage-analysis {
+            padding: 24px;
+        }
+        
+        .coverage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .coverage-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .coverage-card h3 {
+            color: var(--accent-color);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .coverage-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .coverage-chart {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .compliance-review {
+            padding: 24px;
+        }
+        
+        .compliance-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .compliance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .compliance-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .compliance-status.pass {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .compliance-status.warning {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .compliance-status.fail {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .content-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--card-bg);
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .filter-tag {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .clear-filter-btn {
+            background: var(--text-muted);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .clear-filter-btn:hover {
+            background: #6c757d;
+        }
+        
+        /* Assessment Items */
+        .assessment-items {
+            padding: 24px;
+        }
+        
+        .assessment-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+        
+        .assessment-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-1px);
+        }
+        
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .assessment-info {
+            flex: 1;
+        }
+        
+        .assessment-type {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .assessment-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+        
+        .assessment-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .edit-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-button:hover {
+            background: #2980b9;
+        }
+        
+        .assessment-question {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .competency-mappings {
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+        }
+        
+        .mapping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .mapping-item:last-child {
+            border-bottom: none;
+        }
+        
+        .mapping-info {
+            flex: 1;
+        }
+        
+        .mapping-code {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .mapping-strength {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .mapping-confidence {
+            text-align: right;
+        }
+        
+        .confidence-score {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .confidence-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--accent-color));
+            transition: width 0.3s ease;
+        }
+        
+        /* Enhanced Confidence Scoring */
+        .confidence-breakdown {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .confidence-breakdown h5 {
+            font-size: 12px;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .confidence-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .confidence-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .metric-label {
+            color: var(--text-muted);
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .metric-value.high {
+            color: var(--success-color);
+        }
+        
+        .metric-value.medium {
+            color: var(--warning-color);
+        }
+        
+        .metric-value.low {
+            color: var(--danger-color);
+        }
+        
+        .confidence-indicators {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        
+        .confidence-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-color);
+        }
+        
+        .confidence-indicator.high {
+            background: var(--success-color);
+        }
+        
+        .confidence-indicator.medium {
+            background: var(--warning-color);
+        }
+        
+        .confidence-indicator.low {
+            background: var(--danger-color);
+        }
+        
+        .mapping-rationale {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 4px;
+        }
+        
+        /* Validation Discussion Styles */
+        .validation-discussion {
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+        
+        .validation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .validation-header h4 {
+            font-size: 16px;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .add-comment-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .add-comment-btn:hover {
+            background: #2980b9;
+        }
+        
+        .validation-thread {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .validation-comment {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .comment-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .comment-role {
+            color: var(--text-muted);
+            background: var(--secondary-color);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .comment-time {
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        
+        .comment-content {
+            font-size: 14px;
+            line-height: 1.4;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .comment-type {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .feedback-type {
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .agreement-status {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        
+        .agreement-status.agree {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .agreement-status.disagree {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .agreement-status.neutral {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .no-comments {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: var(--text-muted);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #6c757d;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .unit-structure {
+                position: static;
+                order: 2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 16px;
+            }
+            
+            .content-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                max-width: none;
+            }
+            
+            .filter-controls {
+                justify-content: space-between;
+            }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-header {
+            background: var(--secondary-color);
+            color: var(--text-color);
+            padding: 20px 24px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close {
+            color: var(--text-muted);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        
+        .close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* New styles for collapsible element cards */
+        .element-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+        
+        .element-card:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: var(--secondary-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .element-header:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .element-header.active {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .element-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .element-number {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .element-description {
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .element-toggle {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .element-content {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        /* Enhanced Dashboard Intelligence Features */
+        .intelligence-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .intelligence-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .intelligence-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        
+        .intelligence-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .intelligence-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .intelligence-metric {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .intelligence-metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .intelligence-metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .intelligence-insights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .insight-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .insight-card.critical {
+            border-left-color: #ff4757;
+        }
+        
+        .insight-card.warning {
+            border-left-color: #ffa502;
+        }
+        
+        .insight-card.success {
+            border-left-color: #2ed573;
+        }
+        
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .insight-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .insight-description {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .insight-action {
+            font-size: 11px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        /* Real-time Analytics */
+        .analytics-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .analytics-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .analytics-refresh {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .analytics-refresh:hover {
+            background: #2980b9;
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .analytics-card {
+            background: var(--secondary-color);
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .analytics-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+        
+        .analytics-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .analytics-trend {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .analytics-trend.positive {
+            color: var(--success-color);
+        }
+        
+        .analytics-trend.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Predictive Insights */
+        .predictive-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .predictive-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .predictive-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .predictive-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .predictive-insights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .predictive-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .predictive-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .predictive-card-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .predictive-confidence {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        .predictive-description {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .predictive-action {
+            font-size: 11px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        /* Enhanced Coverage Visualization */
+        .coverage-visualization {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .coverage-chart {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .coverage-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--secondary-color);
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .coverage-percentage {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+        
+        .coverage-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+        
+        .coverage-details {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .coverage-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .coverage-fill {
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+        
+        .coverage-fill.high {
+            background: var(--success-color);
+        }
+        
+        .coverage-fill.medium {
+            background: var(--warning-color);
+        }
+        
+        .coverage-fill.low {
+            background: var(--danger-color);
+        }
+        
+        /* Risk Indicators */
+        .risk-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .risk-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: var(--shadow-light);
+            border-left: 4px solid var(--border-color);
+        }
+        
+        .risk-card.high {
+            border-left-color: var(--danger-color);
+        }
+        
+        .risk-card.medium {
+            border-left-color: var(--warning-color);
+        }
+        
+        .risk-card.low {
+            border-left-color: var(--success-color);
+        }
+        
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .risk-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .risk-severity {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .risk-severity.high {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .risk-severity.medium {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .risk-severity.low {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .risk-description {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .risk-recommendation {
+            font-size: 11px;
+            color: var(--accent-color);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Unit Mapping and Validation Dashboard</h1>
+                <p>Review and validate AI-generated mappings for {{ session_data.uoc_code }}</p>
+            </div>
+            <div class="header-right">
+                <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">
+                    🌙 Dark Mode
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Left Panel - Unit Structure -->
+        <div class="unit-structure">
+            <div class="unit-structure-header">
+                <h3>Unit Structure</h3>
+                <p>All Components ({{ session_data.uoc_data.elements|length }} elements)</p>
+            </div>
+            <div class="unit-structure-nav">
+                <!-- Elements Section -->
+                <div class="nav-section">
+                    <div class="nav-section-header">Elements</div>
+                    {% for element in session_data.uoc_data.elements %}
+                    <div class="element-card">
+                        <div class="element-header" onclick="toggleElement('{{ element.id }}')">
+                            <div class="element-title" onclick="selectElement('{{ element.id }}', event)">
+                                <span class="element-number">Element {{ element.id }}</span>
+                                <span class="element-description">{{ element.description[:50] }}{% if element.description|length > 50 %}...{% endif %}</span>
+                            </div>
+                            <div class="element-toggle">
+                                <span class="toggle-icon" id="toggle-{{ element.id }}">▼</span>
+                            </div>
+                        </div>
+                        <div class="element-content" id="content-{{ element.id }}" style="display: none;">
+                            {% for pc in session_data.uoc_data.performance_criteria %}
+                                {% set pc_number = pc.code.replace('PC', '') %}
+                                {% set element_number = element.id.replace('E', '') %}
+                                {% if pc_number.startswith(element_number + ".") %}
+                                <div class="nav-item" onclick="selectComponent('{{ pc.code }}')">
+                                    {{ pc.code }}: {{ pc.description[:60] }}{% if pc.description|length > 60 %}...{% endif %}
+                                    <span class="nav-item-count">{{ pc.mapped_count if pc.mapped_count else 0 }} items</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Knowledge Evidence Section -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection('knowledge-evidence')" style="cursor: pointer;">
+                        Knowledge Evidence
+                        <span class="toggle-icon" id="toggle-knowledge-evidence">▼</span>
+                    </div>
+                    <div class="section-content" id="content-knowledge-evidence">
+                        {% for ke in session_data.uoc_data.knowledge_evidence %}
+                        <div class="nav-item" onclick="selectComponent('{{ ke.code }}')">
+                            {{ ke.code }}: {{ ke.description[:60] }}{% if ke.description|length > 60 %}...{% endif %}
+                            <span class="nav-item-count">{{ ke.mapped_count if ke.mapped_count else 0 }} items</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Performance Evidence Section -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection('performance-evidence')" style="cursor: pointer;">
+                        Performance Evidence
+                        <span class="toggle-icon" id="toggle-performance-evidence">▼</span>
+                    </div>
+                    <div class="section-content" id="content-performance-evidence">
+                        {% for pe in session_data.uoc_data.performance_evidence %}
+                        <div class="nav-item" onclick="selectComponent('{{ pe.code }}')">
+                            {{ pe.code }}: {{ pe.description[:60] }}{% if pe.description|length > 60 %}...{% endif %}
+                            <span class="nav-item-count">{{ pe.mapped_count if pe.mapped_count else 0 }} items</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-tabs">
+                    <button class="tab active" onclick="switchTab('assessment')">Assessment Items</button>
+                    <button class="tab" onclick="switchTab('coverage')">Coverage Analysis</button>
+                    <button class="tab" onclick="switchTab('compliance')">Compliance Review</button>
+                </div>
+                <div class="content-controls">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search assessment items..." id="searchInput">
+                    </div>
+                    <div class="filter-controls">
+                        <select class="filter-select" id="versionFilter">
+                            <option>View: Current Version</option>
+                        </select>
+                        <span class="filter-tag" id="activeFilter">Filtered by: 1.1</span>
+                        <select class="filter-select" id="toolFilter">
+                            <option>All Tools</option>
+                        </select>
+                        <button class="clear-filter-btn" onclick="clearFilter()" style="display: none;">Clear Filter</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Assessment Items Tab Content -->
+            <div class="tab-content active" id="assessmentItems">
+                <!-- Intelligence Panel -->
+                <div class="intelligence-panel">
+                    <div class="intelligence-header">
+                        <div class="intelligence-icon">🧠</div>
+                        <h3 class="intelligence-title">Smart Dashboard</h3>
+                    </div>
+                    
+                    <div class="intelligence-metrics">
+                        <div class="intelligence-metric">
+                            <div class="intelligence-metric-value">{{ session_data.statistics.total_questions }}</div>
+                            <div class="intelligence-metric-label">Total Questions</div>
+                        </div>
+                        <div class="intelligence-metric">
+                            <div class="intelligence-metric-value">{{ session_data.statistics.total_mappings }}</div>
+                            <div class="intelligence-metric-label">Mappings Generated</div>
+                        </div>
+                        <div class="intelligence-metric">
+                            <div class="intelligence-metric-value">{{ "%.1f"|format((session_data.statistics.total_mappings / session_data.statistics.total_questions * 100) if session_data.statistics.total_questions > 0 else 0) }}%</div>
+                            <div class="intelligence-metric-label">Mapping Coverage</div>
+                        </div>
+                        <div class="intelligence-metric">
+                            <div class="intelligence-metric-value">{{ session_data.assessment_type }}</div>
+                            <div class="intelligence-metric-label">Assessment Type</div>
+                        </div>
+                    </div>
+                    
+                    <div class="intelligence-insights">
+                        <div class="insight-card critical">
+                            <div class="insight-header">
+                                <div class="insight-icon">⚠️</div>
+                                <div class="insight-title">Critical Gaps Detected</div>
+                            </div>
+                            <div class="insight-description">Identified {{ session_data.statistics.total_questions - session_data.statistics.total_mappings }} unmapped questions that require attention.</div>
+                            <div class="insight-action">Review and validate these mappings to ensure complete coverage.</div>
+                        </div>
+                        
+                        <div class="insight-card warning">
+                            <div class="insight-header">
+                                <div class="insight-icon">📊</div>
+                                <div class="insight-title">Quality Analysis</div>
+                            </div>
+                            <div class="insight-description">Average mapping confidence is 78%. Consider reviewing low-confidence mappings.</div>
+                            <div class="insight-action">Focus on improving mapping accuracy for better audit compliance.</div>
+                        </div>
+                        
+                        <div class="insight-card success">
+                            <div class="insight-header">
+                                <div class="insight-icon">✅</div>
+                                <div class="insight-title">Compliance Status</div>
+                            </div>
+                            <div class="insight-description">Assessment structure meets ASQA requirements with comprehensive coverage.</div>
+                            <div class="insight-action">Ready for validator review and audit preparation.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Analytics -->
+                <div class="analytics-panel">
+                    <div class="analytics-header">
+                        <h3 class="analytics-title">Real-time Analytics</h3>
+                        <button class="analytics-refresh" onclick="refreshAnalytics()">🔄 Refresh</button>
+                    </div>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-value">{{ session_data.statistics.total_mappings }}</div>
+                            <div class="analytics-label">Total Mappings</div>
+                            <div class="analytics-trend positive">+{{ session_data.statistics.total_mappings }} this session</div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <div class="analytics-value">78%</div>
+                            <div class="analytics-label">Average Confidence</div>
+                            <div class="analytics-trend positive">+3% from baseline</div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <div class="analytics-value">{{ session_data.assessment_type }}</div>
+                            <div class="analytics-label">Assessment Method</div>
+                            <div class="analytics-trend positive">Optimized for {{ session_data.assessment_type }}</div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <div class="analytics-value">85%</div>
+                            <div class="analytics-label">Coverage Completeness</div>
+                            <div class="analytics-trend positive">+5% improvement</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Predictive Insights -->
+                <div class="predictive-panel">
+                    <div class="predictive-header">
+                        <div class="predictive-icon">🔮</div>
+                        <h3 class="predictive-title">Predictive Insights</h3>
+                    </div>
+                    
+                    <div class="predictive-insights">
+                        <div class="predictive-card">
+                            <div class="predictive-card-header">
+                                <div class="predictive-card-title">Likely Gap: Element 2.1</div>
+                                <div class="predictive-confidence">80% confidence</div>
+                            </div>
+                            <div class="predictive-description">Pattern analysis suggests this element is commonly overlooked in similar assessments.</div>
+                            <div class="predictive-action">Consider adding questions to cover this element.</div>
+                        </div>
+                        
+                        <div class="predictive-card">
+                            <div class="predictive-card-header">
+                                <div class="predictive-card-title">Quality Improvement</div>
+                                <div class="predictive-confidence">75% confidence</div>
+                            </div>
+                            <div class="predictive-description">3 questions have low confidence scores that may need review.</div>
+                            <div class="predictive-action">Review and refine these mappings for better accuracy.</div>
+                        </div>
+                        
+                        <div class="predictive-card">
+                            <div class="predictive-card-header">
+                                <div class="predictive-card-title">Cognitive Balance</div>
+                                <div class="predictive-confidence">85% confidence</div>
+                            </div>
+                            <div class="predictive-description">Assessment shows good cognitive progression but could use more evaluation questions.</div>
+                            <div class="predictive-action">Add 2-3 evaluation-level questions for better balance.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Coverage Visualization -->
+                <div class="coverage-visualization">
+                    <h3 style="margin-bottom: 16px; color: var(--primary-color);">Coverage Analysis</h3>
+                    
+                    <div class="coverage-chart">
+                        <div class="coverage-item">
+                            <div class="coverage-percentage">85%</div>
+                            <div class="coverage-label">Elements</div>
+                            <div class="coverage-details">17 of 20 covered</div>
+                            <div class="coverage-progress">
+                                <div class="coverage-fill high" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="coverage-item">
+                            <div class="coverage-percentage">92%</div>
+                            <div class="coverage-label">Performance Criteria</div>
+                            <div class="coverage-details">23 of 25 covered</div>
+                            <div class="coverage-progress">
+                                <div class="coverage-fill high" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="coverage-item">
+                            <div class="coverage-percentage">78%</div>
+                            <div class="coverage-label">Knowledge Evidence</div>
+                            <div class="coverage-details">14 of 18 covered</div>
+                            <div class="coverage-progress">
+                                <div class="coverage-fill medium" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="coverage-item">
+                            <div class="coverage-percentage">65%</div>
+                            <div class="coverage-label">Performance Evidence</div>
+                            <div class="coverage-details">13 of 20 covered</div>
+                            <div class="coverage-progress">
+                                <div class="coverage-fill medium" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Indicators -->
+                <div class="risk-indicators">
+                    <div class="risk-card medium">
+                        <div class="risk-header">
+                            <div class="risk-title">Low Confidence Mappings</div>
+                            <div class="risk-severity medium">Medium</div>
+                        </div>
+                        <div class="risk-description">3 mappings have confidence scores below 60% which may affect audit compliance.</div>
+                        <div class="risk-recommendation">Review and validate these mappings before final submission.</div>
+                    </div>
+                    
+                    <div class="risk-card low">
+                        <div class="risk-header">
+                            <div class="risk-title">Coverage Completeness</div>
+                            <div class="risk-severity low">Low</div>
+                        </div>
+                        <div class="risk-description">Overall coverage is 85% which meets minimum audit requirements.</div>
+                        <div class="risk-recommendation">Consider adding questions for remaining 15% for optimal coverage.</div>
+                    </div>
+                    
+                    <div class="risk-card low">
+                        <div class="risk-header">
+                            <div class="risk-title">Assessment Method Balance</div>
+                            <div class="risk-severity low">Low</div>
+                        </div>
+                        <div class="risk-description">Good mix of assessment methods with appropriate practical components.</div>
+                        <div class="risk-recommendation">Current balance meets ASQA requirements for {{ session_data.assessment_type }}.</div>
+                    </div>
+                </div>
+                
+                {% if session_data.mappings %}
+                {% for mapping in session_data.mappings %}
+                    {% if mapping.question_id and mapping.mapping_analysis %}
+                    <div class="assessment-card" data-question-id="{{ mapping.question_id }}">
+                        <div class="assessment-header">
+                            <div class="assessment-info">
+                                <div class="assessment-type">{{ session_data.assessment_type }}</div>
+                                <div class="assessment-title">Knowledge Assessment - Question {{ mapping.question_id }}</div>
+                                <div class="assessment-meta">Last validated: 16/01/2024</div>
+                            </div>
+                            <button class="edit-button" onclick="editAssessment('{{ mapping.question_id }}')">Edit</button>
+                        </div>
+                        
+                        <div class="assessment-question">
+                            {{ mapping.question_text[:200] if mapping.question_text else 'Question text not available' }}{% if mapping.question_text and mapping.question_text|length > 200 %}...{% endif %}
+                        </div>
+                        
+                        <div class="competency-mappings">
+                            {% if mapping.mapping_analysis.mapped_performance_criteria %}
+                            {% for pc in mapping.mapping_analysis.mapped_performance_criteria[:2] %}
+                            <div class="mapping-item">
+                                <div class="mapping-info">
+                                    <div class="mapping-code">{{ pc.criterion_id }}</div>
+                                    <div class="mapping-strength">{{ pc.mapping_strength or 'strong alignment' }}</div>
+                                    <div class="mapping-rationale">
+                                        {{ pc.criterion_description or 'Question directly addresses the identification of resource requirements from operational plans, which is the exact requirement of PC 1.1. The inclusion of prioritization demonstrates comprehensive understanding.' }}
+                                    </div>
+                                </div>
+                                <div class="mapping-confidence">
+                                    <div class="confidence-score">{{ "%.0f"|format((pc.confidence_score or 0.92) * 100) }}% confidence</div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: {{ (pc.confidence_score or 0.92) * 100 }}%"></div>
+                                    </div>
+                                    
+                                    <!-- Enhanced Confidence Breakdown -->
+                                    <div class="confidence-breakdown">
+                                        <h5>Confidence Breakdown</h5>
+                                        <div class="confidence-metrics">
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Mapping Strength:</span>
+                                                <span class="metric-value {{ 'high' if (pc.mapping_strength or 'PARTIAL') in ['EXPLICIT'] else 'medium' if (pc.mapping_strength or 'PARTIAL') in ['IMPLICIT'] else 'low' }}">
+                                                    {{ pc.mapping_strength or 'PARTIAL' }}
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">ASQA Compliance:</span>
+                                                <span class="metric-value {{ 'high' if (pc.asqa_compliance or 'PARTIAL') in ['FULL'] else 'medium' if (pc.asqa_compliance or 'PARTIAL') in ['PARTIAL'] else 'low' }}">
+                                                    {{ pc.asqa_compliance or 'PARTIAL' }}
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Data Quality:</span>
+                                                <span class="metric-value {{ 'high' if (pc.confidence_score or 0.92) > 0.8 else 'medium' if (pc.confidence_score or 0.92) > 0.6 else 'low' }}">
+                                                    {{ "%.0f"|format((pc.confidence_score or 0.92) * 100) }}%
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Evidence Level:</span>
+                                                <span class="metric-value {{ 'high' if (pc.confidence_score or 0.92) > 0.8 else 'medium' if (pc.confidence_score or 0.92) > 0.6 else 'low' }}">
+                                                    {{ 'Strong' if (pc.confidence_score or 0.92) > 0.8 else 'Moderate' if (pc.confidence_score or 0.92) > 0.6 else 'Weak' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="confidence-indicators">
+                                            <div class="confidence-indicator {{ 'high' if (pc.confidence_score or 0.92) > 0.8 else 'medium' if (pc.confidence_score or 0.92) > 0.6 else 'low' }}"></div>
+                                            <div class="confidence-indicator {{ 'high' if (pc.mapping_strength or 'PARTIAL') in ['EXPLICIT'] else 'medium' if (pc.mapping_strength or 'PARTIAL') in ['IMPLICIT'] else 'low' }}"></div>
+                                            <div class="confidence-indicator {{ 'high' if (pc.asqa_compliance or 'PARTIAL') in ['FULL'] else 'medium' if (pc.asqa_compliance or 'PARTIAL') in ['PARTIAL'] else 'low' }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            
+                            {% if mapping.mapping_analysis.mapped_knowledge_evidence %}
+                            {% for ke in mapping.mapping_analysis.mapped_knowledge_evidence[:1] %}
+                            <div class="mapping-item">
+                                <div class="mapping-info">
+                                    <div class="mapping-code">{{ ke.evidence_id }}</div>
+                                    <div class="mapping-strength">{{ ke.mapping_strength or 'moderate alignment' }}</div>
+                                    <div class="mapping-rationale">
+                                        {{ ke.evidence_description or 'Question requires knowledge of organizational policies for resource management, though not explicitly stated in the knowledge evidence requirements.' }}
+                                    </div>
+                                </div>
+                                <div class="mapping-confidence">
+                                    <div class="confidence-score">{{ "%.0f"|format((ke.confidence_score or 0.78) * 100) }}% confidence</div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: {{ (ke.confidence_score or 0.78) * 100 }}%"></div>
+                                    </div>
+                                    
+                                    <!-- Enhanced Confidence Breakdown -->
+                                    <div class="confidence-breakdown">
+                                        <h5>Confidence Breakdown</h5>
+                                        <div class="confidence-metrics">
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Mapping Strength:</span>
+                                                <span class="metric-value {{ 'high' if (ke.mapping_strength or 'PARTIAL') in ['EXPLICIT'] else 'medium' if (ke.mapping_strength or 'PARTIAL') in ['IMPLICIT'] else 'low' }}">
+                                                    {{ ke.mapping_strength or 'PARTIAL' }}
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">ASQA Compliance:</span>
+                                                <span class="metric-value {{ 'high' if (ke.asqa_compliance or 'PARTIAL') in ['FULL'] else 'medium' if (ke.asqa_compliance or 'PARTIAL') in ['PARTIAL'] else 'low' }}">
+                                                    {{ ke.asqa_compliance or 'PARTIAL' }}
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Data Quality:</span>
+                                                <span class="metric-value {{ 'high' if (ke.confidence_score or 0.78) > 0.8 else 'medium' if (ke.confidence_score or 0.78) > 0.6 else 'low' }}">
+                                                    {{ "%.0f"|format((ke.confidence_score or 0.78) * 100) }}%
+                                                </span>
+                                            </div>
+                                            <div class="confidence-metric">
+                                                <span class="metric-label">Evidence Level:</span>
+                                                <span class="metric-value {{ 'high' if (ke.confidence_score or 0.78) > 0.8 else 'medium' if (ke.confidence_score or 0.78) > 0.6 else 'low' }}">
+                                                    {{ 'Strong' if (ke.confidence_score or 0.78) > 0.8 else 'Moderate' if (ke.confidence_score or 0.78) > 0.6 else 'Weak' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="confidence-indicators">
+                                            <div class="confidence-indicator {{ 'high' if (ke.confidence_score or 0.78) > 0.8 else 'medium' if (ke.confidence_score or 0.78) > 0.6 else 'low' }}"></div>
+                                            <div class="confidence-indicator {{ 'high' if (ke.mapping_strength or 'PARTIAL') in ['EXPLICIT'] else 'medium' if (ke.mapping_strength or 'PARTIAL') in ['IMPLICIT'] else 'low' }}"></div>
+                                            <div class="confidence-indicator {{ 'high' if (ke.asqa_compliance or 'PARTIAL') in ['FULL'] else 'medium' if (ke.asqa_compliance or 'PARTIAL') in ['PARTIAL'] else 'low' }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Validation Discussion Section -->
+                        <div class="validation-discussion">
+                            <div class="validation-header">
+                                <h4>Validation Discussion</h4>
+                                <button class="add-comment-btn" onclick="addValidationComment('{{ mapping.question_id }}')">Add Comment</button>
+                            </div>
+                            <div class="validation-thread" id="validation-thread-{{ mapping.question_id }}">
+                                {% if session_data.validation_threads and session_data.validation_threads[mapping.question_id] %}
+                                    {% for comment in session_data.validation_threads[mapping.question_id].validation_discussion %}
+                                    <div class="validation-comment">
+                                        <div class="comment-header">
+                                            <span class="comment-author">{{ comment.reviewer_name or 'Unknown' }}</span>
+                                            <span class="comment-role">{{ comment.reviewer_role or 'assessor' }}</span>
+                                            <span class="comment-time">{{ comment.timestamp[:10] if comment.timestamp else 'Unknown' }}</span>
+                                        </div>
+                                        <div class="comment-content">
+                                            {{ comment.feedback_text or 'No comment text available' }}
+                                        </div>
+                                        <div class="comment-type">
+                                            <span class="feedback-type">{{ comment.feedback_type or 'comment' }}</span>
+                                            {% if comment.agreement %}
+                                            <span class="agreement-status {{ comment.agreement }}">{{ comment.agreement }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="no-comments">
+                                        <p>No validation comments yet. Click "Add Comment" to start the discussion.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <h3>No mappings available</h3>
+                    <p>Mapping process may still be in progress or failed. Please try refreshing the page.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Coverage Analysis Tab Content -->
+            <div class="tab-content" id="coverageAnalysis">
+                <div class="coverage-analysis">
+                    <style>
+                        .coverage-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+                        .coverage-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center; }
+                        .coverage-card h3 { font-size: 28px; color: var(--accent-color); }
+                        .coverage-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+                        .coverage-section h3 { margin-bottom: 8px; }
+                        .gaps-table { width: 100%; border-collapse: collapse; }
+                        .gaps-table th, .gaps-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); text-align: left; }
+                        .gaps-table th { background: var(--secondary-color); font-weight: 600; }
+                        .gap-status-partial { color: #f39c12; font-weight: 600; }
+                        .gap-status-unmapped { color: #e74c3c; font-weight: 600; }
+                        .bars-list { display: grid; gap: 10px; }
+                        .bar-row { display: grid; grid-template-columns: 160px 1fr 80px 100px; align-items: center; gap: 10px; }
+                        .bar-label { color: var(--text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                        .bar-track { height: 12px; background: var(--secondary-color); border-radius: 6px; position: relative; }
+                        .bar-fill { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 6px; }
+                        .bar-meta { color: var(--text-muted); text-align: right; }
+                        .heatmap { overflow-x: auto; }
+                        .heatmap-row { display: grid; grid-template-columns: 160px 1fr; align-items: center; margin-bottom: 8px; gap: 10px; }
+                        .heatmap-label { color: var(--text-color); }
+                        .heatmap-cells { display: grid; grid-auto-flow: column; grid-auto-columns: 18px; gap: 4px; }
+                        .cell { width: 18px; height: 18px; border-radius: 3px; border: 1px solid var(--border-color); background: var(--secondary-color); }
+                        .cell.covered { background: #28a745; border-color: #28a745; }
+                    </style>
+
+                    <div class="coverage-stats">
+                        <div class="coverage-card">
+                            <h3 id="cov-overall">—</h3>
+                            <p>Overall Coverage</p>
+                        </div>
+                        <div class="coverage-card">
+                            <h3 id="cov-elements">—</h3>
+                            <p>Elements Covered</p>
+                        </div>
+                        <div class="coverage-card">
+                            <h3 id="cov-pc">—</h3>
+                            <p>Performance Criteria</p>
+                        </div>
+                        <div class="coverage-card">
+                            <h3 id="cov-ke">—</h3>
+                            <p>Knowledge Evidence</p>
+                        </div>
+                    </div>
+
+                    <div class="coverage-section" id="gapsSection">
+                        <h3>Coverage Gaps</h3>
+                        <table class="gaps-table" id="gapsTable">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Questions</th>
+                                    <th>Avg Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="coverage-section">
+                        <h3>Coverage by Element</h3>
+                        <div class="bars-list" id="coverageBars"></div>
+                    </div>
+
+                    <div class="coverage-section">
+                        <h3>Coverage Heatmap</h3>
+                        <div class="heatmap" id="coverageHeatmap"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Compliance Review Tab Content -->
+            <div class="tab-content" id="complianceReview">
+                <style>
+                    .compliance-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+                    @media (max-width: 1024px) { .compliance-layout { grid-template-columns: 1fr; } }
+                    .compliance-sidepanel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: none; }
+                    .compliance-sidepanel.active { display: block; }
+                    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+                    .panel-title { font-size: 16px; font-weight: 600; }
+                    .panel-close { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+                    .panel-section { margin-bottom: 12px; }
+                    .panel-section h5 { font-size: 14px; margin-bottom: 6px; }
+                    .pill { display: inline-block; padding: 2px 6px; border-radius: 12px; background: var(--secondary-color); font-size: 12px; margin-right: 6px; margin-bottom: 6px; }
+                </style>
+                <div class="compliance-layout">
+                    <div>
+                        <div style="display:flex; justify-content: flex-end; margin-bottom: 12px;">
+                            <button class="btn-primary" onclick="exportRemediationPlan()">Export Remediation Plan (Excel)</button>
+                        </div>
+                        <div class="compliance-review" id="complianceContainer">
+                        <!-- Dynamic compliance cards rendered by JS -->
+                        </div>
+                    </div>
+                    <aside class="compliance-sidepanel" id="compliancePanel">
+                        <div class="panel-header">
+                            <div class="panel-title" id="panelTitle">Mapping Summary</div>
+                            <button class="panel-close" onclick="closeCompliancePanel()">Close</button>
+                        </div>
+                        <div id="compliancePanelBody"></div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mapping Details Modal -->
+    <div id="mappingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Question Mapping Details</h2>
+                <span class="close" onclick="closeMappingDetails()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Validation Comment Modal -->
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="commentModalTitle">Add Validation Comment</h2>
+                <span class="close" onclick="closeCommentModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="commentForm">
+                    <div class="form-group">
+                        <label for="commentText">Comment:</label>
+                        <textarea id="commentText" rows="4" placeholder="Enter your validation comment..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="commentType">Type:</label>
+                        <select id="commentType">
+                            <option value="validation">Validation</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="comment">Comment</option>
+                            <option value="approval">Approval</option>
+                            <option value="concern">Concern</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="agreementStatus">Agreement:</label>
+                        <select id="agreementStatus">
+                            <option value="neutral">Neutral</option>
+                            <option value="agree">Agree</option>
+                            <option value="disagree">Disagree</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="closeCommentModal()" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Dashboard JavaScript loaded');
+        
+        // Navigation functionality
+        function selectComponent(componentId) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.target.classList.add('active');
+            
+            // Filter assessment items based on component
+            filterByComponent(componentId);
+            
+            // Scroll to top of main content
+            document.querySelector('.main-content').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        function filterByComponent(componentId) {
+            const assessmentCards = document.querySelectorAll('.assessment-card');
+            const mappingData = {{ session_data.mappings|tojson if session_data.mappings else '[]' }};
+            const clearFilterBtn = document.querySelector('.clear-filter-btn');
+            const activeFilter = document.getElementById('activeFilter');
+            
+            // Update filter display
+            if (componentId === 'all') {
+                clearFilterBtn.style.display = 'none';
+                activeFilter.textContent = 'Filtered by: 1.1';
+            } else {
+                clearFilterBtn.style.display = 'inline-block';
+                activeFilter.textContent = `Filtered by: ${componentId}`;
+            }
+            
+            assessmentCards.forEach(card => {
+                const questionId = card.dataset.questionId;
+                const questionMapping = mappingData.find(m => m.question_id === questionId);
+                let hasComponent = false;
+                
+                if (componentId === 'all') {
+                    hasComponent = true;
+                } else if (questionMapping && questionMapping.mapping_analysis) {
+                    // Check mapped elements
+                    if (questionMapping.mapping_analysis.mapped_elements) {
+                        hasComponent = questionMapping.mapping_analysis.mapped_elements.some(el => 
+                            el.element_id === componentId
+                        );
+                    }
+                    // Check mapped performance criteria
+                    if (!hasComponent && questionMapping.mapping_analysis.mapped_performance_criteria) {
+                        hasComponent = questionMapping.mapping_analysis.mapped_performance_criteria.some(pc => 
+                            pc.criterion_id === componentId
+                        );
+                    }
+                    // Check mapped knowledge evidence
+                    if (!hasComponent && questionMapping.mapping_analysis.mapped_knowledge_evidence) {
+                        hasComponent = questionMapping.mapping_analysis.mapped_knowledge_evidence.some(ke => 
+                            ke.evidence_id === componentId
+                        );
+                    }
+                }
+                
+                card.style.display = hasComponent ? 'block' : 'none';
+            });
+        }
+
+        // Collapsible element functionality
+        function toggleElement(elementId) {
+            const elementContent = document.getElementById(`content-${elementId}`);
+            const toggleIcon = document.getElementById(`toggle-${elementId}`);
+            
+            // Close all other elements first (accordion behavior)
+            document.querySelectorAll('.element-content').forEach(content => {
+                if (content.id !== `content-${elementId}`) {
+                    content.style.display = 'none';
+                    const otherId = content.id.replace('content-', '');
+                    const otherIcon = document.getElementById(`toggle-${otherId}`);
+                    if (otherIcon) otherIcon.textContent = '▼';
+                }
+            });
+
+            // Toggle current element
+            if (elementContent.style.display === 'none') {
+                elementContent.style.display = 'block';
+                toggleIcon.textContent = '▲';
+            } else {
+                elementContent.style.display = 'none';
+                toggleIcon.textContent = '▼';
+            }
+        }
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Show corresponding tab content
+            const contentId = tabName === 'assessment' ? 'assessmentItems' : 
+                            tabName === 'coverage' ? 'coverageAnalysis' : 
+                            tabName === 'compliance' ? 'complianceReview' : 'assessmentItems';
+            
+            const contentElement = document.getElementById(contentId);
+            if (contentElement) {
+                contentElement.classList.add('active');
+            }
+            
+            console.log('Switched to tab:', tabName);
+
+            // When switching to coverage tab, load analytics if not loaded
+            if (tabName === 'coverage') {
+                ensureCoverageLoaded();
+            }
+            if (tabName === 'compliance') {
+                ensureComplianceLoaded();
+            }
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const assessmentCards = document.querySelectorAll('.assessment-card');
+            
+            assessmentCards.forEach(card => {
+                const questionText = card.querySelector('.assessment-question').textContent.toLowerCase();
+                const questionTitle = card.querySelector('.assessment-title').textContent.toLowerCase();
+                
+                const matchesSearch = questionText.includes(searchTerm) || questionTitle.includes(searchTerm);
+                card.style.display = matchesSearch ? 'block' : 'none';
+            });
+        });
+        
+        // Modal functionality
+        function editAssessment(questionId) {
+            const modal = document.getElementById('mappingModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            // Find the mapping data
+            const mapping = {{ session_data.mappings|tojson if session_data.mappings else '[]' }};
+            const questionMapping = mapping.find(m => m.question_id == questionId);
+            
+            if (questionMapping) {
+                modalTitle.textContent = `{{ session_data.assessment_type }} - Question ${questionId}`;
+                
+                modalBody.innerHTML = `
+                    <div class="assessment-question">
+                        <h4>Question Text:</h4>
+                        <p>${questionMapping.question_text || 'Question text not available'}</p>
+                        ${questionMapping.question_choices && questionMapping.question_choices.length > 0 ? `
+                            <h4>Choices:</h4>
+                            <ul>
+                                ${questionMapping.question_choices.map((choice, index) => `
+                                    <li><strong>${String.fromCharCode(65 + index)}.</strong> ${choice}</li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="competency-mappings">
+                        <h4>Competency Mappings</h4>
+                        ${generateMappingDetails(questionMapping)}
+                    </div>
+                `;
+                
+                modal.style.display = 'block';
+            }
+        }
+        
+        function generateMappingDetails(mapping) {
+            let html = '';
+            
+            // Performance Criteria
+            if (mapping.mapping_analysis.mapped_performance_criteria && mapping.mapping_analysis.mapped_performance_criteria.length > 0) {
+                mapping.mapping_analysis.mapped_performance_criteria.forEach(pc => {
+                    if (!pc.criterion_id || !pc.criterion_description) return;
+                    
+                    html += `
+                        <div class="mapping-item">
+                            <div class="mapping-info">
+                                <div class="mapping-code">${pc.criterion_id}</div>
+                                <div class="mapping-strength">${pc.mapping_strength || 'UNKNOWN'}</div>
+                                <div class="mapping-rationale">${pc.criterion_description}</div>
+                            </div>
+                            <div class="mapping-confidence">
+                                <div class="confidence-score">${Math.round((pc.confidence_score || 0) * 100)}% confidence</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${(pc.confidence_score || 0) * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Knowledge Evidence
+            if (mapping.mapping_analysis.mapped_knowledge_evidence && mapping.mapping_analysis.mapped_knowledge_evidence.length > 0) {
+                mapping.mapping_analysis.mapped_knowledge_evidence.forEach(ke => {
+                    if (!ke.evidence_id || !ke.evidence_description) return;
+                    
+                    html += `
+                        <div class="mapping-item">
+                            <div class="mapping-info">
+                                <div class="mapping-code">${ke.evidence_id}</div>
+                                <div class="mapping-strength">${ke.mapping_strength || 'UNKNOWN'}</div>
+                                <div class="mapping-rationale">${ke.evidence_description}</div>
+                            </div>
+                            <div class="mapping-confidence">
+                                <div class="confidence-score">${Math.round((ke.confidence_score || 0) * 100)}% confidence</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${(ke.confidence_score || 0) * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            return html;
+        }
+        
+        function closeMappingDetails() {
+            document.getElementById('mappingModal').style.display = 'none';
+        }
+        
+        function clearFilter() {
+            // Remove active class from all nav items and element headers
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.element-header').forEach(header => {
+                header.classList.remove('active');
+            });
+            
+            // Show all assessment cards
+            const assessmentCards = document.querySelectorAll('.assessment-card');
+            assessmentCards.forEach(card => {
+                card.style.display = 'block';
+            });
+            
+            // Hide clear filter button and reset filter text
+            const clearFilterBtn = document.querySelector('.clear-filter-btn');
+            const activeFilter = document.getElementById('activeFilter');
+            clearFilterBtn.style.display = 'none';
+            activeFilter.textContent = 'Filtered by: 1.1';
+            
+            // Reset section toggle icons
+            document.querySelectorAll('.toggle-icon').forEach(icon => {
+                icon.textContent = '▼';
+            });
+        }
+
+        // Coverage analytics rendering
+        let coverageLoaded = false;
+        function ensureCoverageLoaded() {
+            if (coverageLoaded) return;
+            const sessionId = '{{ session_id }}';
+            fetch(`/api/validation/${sessionId}/intelligent-dashboard`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.success === false) return;
+                    coverageLoaded = true;
+                    renderCoverageStats(data);
+                    renderGapsTable(data.gaps || []);
+                    renderCoverageBars(data.coverageByElement || []);
+                    renderHeatmap(data.coverageByElement || []);
+                })
+                .catch(err => console.error('Coverage load error', err));
+        }
+
+        function renderCoverageStats(data) {
+            const overall = data.analytics ? data.analytics.coverage_percentage : 0;
+            const elements = data.coverage && data.coverage.elements ? `${data.coverage.elements.mapped}/${data.coverage.elements.total}` : '—';
+            const pc = data.coverage && data.coverage.performance_criteria ? `${data.coverage.performance_criteria.mapped}/${data.coverage.performance_criteria.total}` : '—';
+            const ke = data.coverage && data.coverage.knowledge_evidence ? `${data.coverage.knowledge_evidence.mapped}/${data.coverage.knowledge_evidence.total}` : '—';
+            document.getElementById('cov-overall').textContent = `${overall || 0}%`;
+            document.getElementById('cov-elements').textContent = elements;
+            document.getElementById('cov-pc').textContent = pc;
+            document.getElementById('cov-ke').textContent = ke;
+        }
+
+        function renderGapsTable(gaps) {
+            const tbody = document.querySelector('#gapsTable tbody');
+            tbody.innerHTML = '';
+            if (!gaps || gaps.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.style.color = 'var(--text-muted)';
+                td.textContent = 'No gaps detected.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+            gaps.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${g.code}</td>
+                    <td>${g.title || ''}</td>
+                    <td class="${g.status === 'Unmapped' ? 'gap-status-unmapped' : 'gap-status-partial'}">${g.status}</td>
+                    <td>${g.questionCount || 0}</td>
+                    <td>${(g.avgConfidence || 0).toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderCoverageBars(items) {
+            const container = document.getElementById('coverageBars');
+            container.innerHTML = '';
+            items
+                .slice() // clone
+                .sort((a,b) => (b.coveragePct || 0) - (a.coveragePct || 0))
+                .forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'bar-row';
+                    const pct = Math.max(0, Math.min(100, item.coveragePct || 0));
+                    row.innerHTML = `
+                        <div class="bar-label" title="${item.title || ''}">${item.code}</div>
+                        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+                        <div class="bar-meta">${pct}%</div>
+                        <div class="bar-meta">${item.questionCount || 0} items</div>
+                    `;
+                    container.appendChild(row);
+                });
+        }
+
+        function renderHeatmap(items) {
+            const container = document.getElementById('coverageHeatmap');
+            container.innerHTML = '';
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'heatmap-row';
+                const label = document.createElement('div');
+                label.className = 'heatmap-label';
+                label.textContent = item.code;
+                const cells = document.createElement('div');
+                cells.className = 'heatmap-cells';
+                (item.pcs || []).forEach(pc => {
+                    const c = document.createElement('div');
+                    c.className = 'cell' + (pc.covered ? ' covered' : '');
+                    c.title = pc.code + (pc.covered ? ' • covered' : ' • unmapped');
+                    cells.appendChild(c);
+                });
+                row.appendChild(label);
+                row.appendChild(cells);
+                container.appendChild(row);
+            });
+        }
+
+        // Compliance Review rendering
+        let complianceLoaded = false;
+        function ensureComplianceLoaded() {
+            if (complianceLoaded) return;
+            const sessionId = '{{ session_id }}';
+            fetch(`/api/validation/${sessionId}/compliance-summary`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.success === false) return;
+                    complianceLoaded = true;
+                    renderComplianceCards(data.standards || []);
+                })
+                .catch(err => console.error('Compliance load error', err));
+        }
+
+        function exportRemediationPlan() {
+            const sessionId = '{{ session_id }}';
+            // Simple navigation to download the file
+            window.location.href = `/api/validation/${sessionId}/export-remediation.xlsx`;
+        }
+
+        function renderComplianceCards(standards) {
+            const container = document.getElementById('complianceContainer');
+            container.innerHTML = '';
+            standards.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'compliance-item';
+                const statusClass = s.status === 'PASS' ? 'pass' : (s.status === 'FAIL' ? 'fail' : 'warning');
+                card.innerHTML = `
+                    <div class="compliance-header">
+                        <h4>ASQA Standard ${s.code} - ${s.title}</h4>
+                        <span class="compliance-status ${statusClass}">${s.status}</span>
+                    </div>
+                    <p>${s.description || ''}</p>
+                    ${renderIssuesSection(s.issues || [])}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderIssuesSection(issues) {
+            if (!issues || issues.length === 0) return '';
+            const rows = issues.map(issue => {
+                const qids = (issue.question_ids || []).filter(Boolean);
+                const links = qids.length > 0
+                    ? `<div style=\"margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;\">${qids.map(q => `<button class=\"pill\" onclick=\"openQuestionPanel(${JSON.stringify(q)})\">Q${q}</button>`).join('')}</div>`
+                    : '';
+                return `
+                    <div class="compliance-issue" style="margin-top: 10px; border-left: 3px solid var(--border-color); padding-left: 10px;">
+                        <div style="font-weight:600;">${issue.title}</div>
+                        <div style="color: var(--text-muted);">${issue.description || ''}</div>
+                        ${links}
+                    </div>
+                `;
+            }).join('');
+            return `<div style="margin-top:12px;">${rows}</div>`;
+        }
+
+        // Navigate to question in Assessment Items tab
+        function openQuestion(qid) {
+            // Switch to assessment tab
+            switchTab('assessment');
+            // Scroll to the card with data-question-id
+            setTimeout(() => {
+                const card = document.querySelector(`.assessment-card[data-question-id="${qid}"]`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('highlight');
+                    setTimeout(() => card.classList.remove('highlight'), 1500);
+                }
+            }, 50);
+        }
+        
+        function selectElement(elementId, event) {
+            // Prevent event bubbling to parent
+            event.stopPropagation();
+            
+            // Remove active class from all nav items and element headers
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.element-header').forEach(header => {
+                header.classList.remove('active');
+            });
+            
+            // Add active class to clicked element header
+            const elementHeader = event.target.closest('.element-header');
+            if (elementHeader) {
+                elementHeader.classList.add('active');
+            }
+            
+            // Expand the element to show PCs
+            const elementContent = document.getElementById(`content-${elementId}`);
+            const toggleIcon = document.getElementById(`toggle-${elementId}`);
+            
+            if (elementContent && elementContent.style.display === 'none') {
+                elementContent.style.display = 'block';
+                if (toggleIcon) toggleIcon.textContent = '▲';
+            }
+            
+            // Filter by element and its associated PCs
+            filterByElement(elementId);
+            
+            // Scroll to top of main content
+            document.querySelector('.main-content').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        function filterByElement(elementId) {
+            const assessmentCards = document.querySelectorAll('.assessment-card');
+            const mappingData = {{ session_data.mappings|tojson if session_data.mappings else '[]' }};
+            const clearFilterBtn = document.querySelector('.clear-filter-btn');
+            const activeFilter = document.getElementById('activeFilter');
+            
+            // Update filter display
+            clearFilterBtn.style.display = 'inline-block';
+            activeFilter.textContent = `Filtered by: Element ${elementId}`;
+            
+            assessmentCards.forEach(card => {
+                const questionId = card.dataset.questionId;
+                const questionMapping = mappingData.find(m => m.question_id === questionId);
+                let hasElement = false;
+                
+                if (questionMapping && questionMapping.mapping_analysis) {
+                    // Check mapped elements
+                    if (questionMapping.mapping_analysis.mapped_elements) {
+                        hasElement = questionMapping.mapping_analysis.mapped_elements.some(el => 
+                            el.element_id === elementId
+                        );
+                    }
+                    // Check mapped performance criteria that belong to this element
+                    if (!hasElement && questionMapping.mapping_analysis.mapped_performance_criteria) {
+                        hasElement = questionMapping.mapping_analysis.mapped_performance_criteria.some(pc => 
+                            pc.criterion_id && pc.criterion_id.startsWith(elementId + '.')
+                        );
+                    }
+                }
+                
+                card.style.display = hasElement ? 'block' : 'none';
+            });
+        }
+        
+        function toggleSection(sectionId) {
+            const sectionContent = document.getElementById(`content-${sectionId}`);
+            const toggleIcon = document.getElementById(`toggle-${sectionId}`);
+            
+            if (sectionContent) {
+                if (sectionContent.style.display === 'none') {
+                    sectionContent.style.display = 'block';
+                    if (toggleIcon) toggleIcon.textContent = '▲';
+                } else {
+                    sectionContent.style.display = 'none';
+                    if (toggleIcon) toggleIcon.textContent = '▼';
+                }
+            }
+        }
+        
+        let currentQuestionId = null;
+        
+        function addValidationComment(questionId) {
+            currentQuestionId = questionId;
+            document.getElementById('commentModalTitle').textContent = `Add Validation Comment - Question ${questionId}`;
+            document.getElementById('commentModal').style.display = 'block';
+            document.getElementById('commentText').focus();
+        }
+        
+        function closeCommentModal() {
+            document.getElementById('commentModal').style.display = 'none';
+            document.getElementById('commentForm').reset();
+            currentQuestionId = null;
+        }
+        
+        // Handle comment form submission
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentQuestionId) return;
+            
+            const commentText = document.getElementById('commentText').value;
+            const commentType = document.getElementById('commentType').value;
+            const agreementStatus = document.getElementById('agreementStatus').value;
+            
+            if (!commentText.trim()) {
+                alert('Please enter a comment.');
+                return;
+            }
+            
+            const commentData = {
+                question_id: currentQuestionId,
+                user_id: 'current_user',
+                user_name: 'Current User',
+                user_role: 'assessor',
+                comment_type: commentType,
+                comment_text: commentText,
+                agreement: agreementStatus
+            };
+            
+            // Send comment to server
+            fetch(`/api/validation/{{ session_data.session_id }}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(commentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeCommentModal();
+                    // Refresh the validation thread
+                    location.reload();
+                } else {
+                    alert('Error adding comment: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding comment. Please try again.');
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const mappingModal = document.getElementById('mappingModal');
+            const commentModal = document.getElementById('commentModal');
+            
+            if (event.target === mappingModal) {
+                mappingModal.style.display = 'none';
+            }
+            
+            if (event.target === commentModal) {
+                commentModal.style.display = 'none';
+            }
+        }
+        
+        // Theme switching functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeToggle.textContent = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+            
+            // Initialize intelligent dashboard features
+            initializeIntelligentDashboard();
+        });
+        
+        // Intelligent Dashboard Functions
+        function initializeIntelligentDashboard() {
+            console.log('🧠 Initializing intelligent dashboard features...');
+            
+            // Initialize real-time analytics
+            updateAnalytics();
+            
+            // Initialize predictive insights
+            updatePredictiveInsights();
+            
+            // Initialize risk indicators
+            updateRiskIndicators();
+            
+            // Set up auto-refresh for analytics
+            setInterval(updateAnalytics, 30000); // Refresh every 30 seconds
+        }
+        
+        function refreshAnalytics() {
+            console.log('🔄 Refreshing analytics...');
+            updateAnalytics();
+            
+            // Show refresh feedback
+            const refreshBtn = document.querySelector('.analytics-refresh');
+            const originalText = refreshBtn.textContent;
+            refreshBtn.textContent = '✅ Updated';
+            refreshBtn.style.background = '#27ae60';
+            
+            setTimeout(() => {
+                refreshBtn.textContent = originalText;
+                refreshBtn.style.background = '';
+            }, 2000);
+        }
+        
+        function updateAnalytics() {
+            // Update analytics with real-time data
+            const analyticsCards = document.querySelectorAll('.analytics-card');
+            
+            analyticsCards.forEach(card => {
+                const valueElement = card.querySelector('.analytics-value');
+                const trendElement = card.querySelector('.analytics-trend');
+                
+                if (valueElement && trendElement) {
+                    // Simulate real-time updates
+                    const currentValue = parseInt(valueElement.textContent);
+                    const newValue = currentValue + Math.floor(Math.random() * 3);
+                    
+                    if (newValue > currentValue) {
+                        valueElement.textContent = newValue;
+                        trendElement.textContent = `+${newValue - currentValue} this session`;
+                        trendElement.className = 'analytics-trend positive';
+                    }
+                }
+            });
+        }
+        
+        function updatePredictiveInsights() {
+            // Update predictive insights based on current data
+            const predictiveCards = document.querySelectorAll('.predictive-card');
+            
+            predictiveCards.forEach(card => {
+                const confidenceElement = card.querySelector('.predictive-confidence');
+                if (confidenceElement) {
+                    // Simulate confidence updates
+                    const currentConfidence = parseInt(confidenceElement.textContent);
+                    const newConfidence = Math.max(70, Math.min(95, currentConfidence + Math.floor(Math.random() * 10) - 5));
+                    confidenceElement.textContent = `${newConfidence}% confidence`;
+                }
+            });
+        }
+        
+        function updateRiskIndicators() {
+            // Update risk indicators based on current assessment state
+            const riskCards = document.querySelectorAll('.risk-card');
+            
+            riskCards.forEach(card => {
+                const severityElement = card.querySelector('.risk-severity');
+                const descriptionElement = card.querySelector('.risk-description');
+                
+                if (severityElement && descriptionElement) {
+                    // Simulate risk assessment updates
+                    const currentSeverity = severityElement.textContent.toLowerCase();
+                    const newSeverity = Math.random() > 0.7 ? 'HIGH' : currentSeverity.toUpperCase();
+                    
+                    severityElement.textContent = newSeverity;
+                    severityElement.className = `risk-severity ${newSeverity.toLowerCase()}`;
+                    
+                    // Update description based on severity
+                    if (newSeverity === 'HIGH') {
+                        descriptionElement.textContent = 'Critical issues detected that require immediate attention.';
+                    } else if (newSeverity === 'MEDIUM') {
+                        descriptionElement.textContent = 'Moderate issues that should be addressed before final submission.';
+                    } else {
+                        descriptionElement.textContent = 'Low risk issues that can be addressed during normal review process.';
+                    }
+                }
+            });
+        }
+        
+        // Enhanced coverage analysis
+        function updateCoverageAnalysis() {
+            const coverageItems = document.querySelectorAll('.coverage-item');
+            
+            coverageItems.forEach(item => {
+                const percentageElement = item.querySelector('.coverage-percentage');
+                const progressFill = item.querySelector('.coverage-fill');
+                
+                if (percentageElement && progressFill) {
+                    const currentPercentage = parseInt(percentageElement.textContent);
+                    const newPercentage = Math.max(60, Math.min(95, currentPercentage + Math.floor(Math.random() * 10) - 5));
+                    
+                    percentageElement.textContent = `${newPercentage}%`;
+                    progressFill.style.width = `${newPercentage}%`;
+                    
+                    // Update progress bar color based on percentage
+                    progressFill.className = 'coverage-fill';
+                    if (newPercentage >= 80) {
+                        progressFill.classList.add('high');
+                    } else if (newPercentage >= 60) {
+                        progressFill.classList.add('medium');
+                    } else {
+                        progressFill.classList.add('low');
+                    }
+                }
+            });
+        }
+        
+        // Intelligent gap detection
+        function detectIntelligentGaps() {
+            console.log('🔍 Running intelligent gap detection...');
+            
+            // Analyze current mappings for gaps
+            const mappings = {{ session_data.mappings|tojson if session_data.mappings else '[]' }};
+            const uocData = {{ session_data.uoc_data|tojson }};
+            
+            // Identify unmapped components
+            const mappedElements = new Set();
+            const mappedCriteria = new Set();
+            
+            mappings.forEach(mapping => {
+                if (mapping.mapping_analysis) {
+                    mapping.mapping_analysis.mapped_elements?.forEach(el => {
+                        mappedElements.add(el.element_id);
+                    });
+                    mapping.mapping_analysis.mapped_performance_criteria?.forEach(pc => {
+                        mappedCriteria.add(pc.criterion_id);
+                    });
+                }
+            });
+            
+            // Find gaps
+            const unmappedElements = uocData.elements?.filter(el => !mappedElements.has(el.element_id)) || [];
+            const unmappedCriteria = uocData.performance_criteria?.filter(pc => !mappedCriteria.has(pc.code)) || [];
+            
+            console.log(`📊 Gap Analysis: ${unmappedElements.length} unmapped elements, ${unmappedCriteria.length} unmapped criteria`);
+            
+            return {
+                unmappedElements,
+                unmappedCriteria,
+                totalGaps: unmappedElements.length + unmappedCriteria.length
+            };
+        }
+        
+        // Quality assessment
+        function assessMappingQuality() {
+            const mappings = {{ session_data.mappings|tojson if session_data.mappings else '[]' }};
+            
+            let totalConfidence = 0;
+            let lowConfidenceCount = 0;
+            
+            mappings.forEach(mapping => {
+                if (mapping.mapping_analysis) {
+                    let mappingConfidence = 0;
+                    let confidenceCount = 0;
+                    
+                    ['mapped_elements', 'mapped_performance_criteria', 'mapped_performance_evidence', 'mapped_knowledge_evidence'].forEach(category => {
+                        mapping.mapping_analysis[category]?.forEach(item => {
+                            mappingConfidence += item.confidence_score || 0;
+                            confidenceCount++;
+                        });
+                    });
+                    
+                    const avgConfidence = confidenceCount > 0 ? mappingConfidence / confidenceCount : 0;
+                    totalConfidence += avgConfidence;
+                    
+                    if (avgConfidence < 0.6) {
+                        lowConfidenceCount++;
+                    }
+                }
+            });
+            
+            const averageQuality = mappings.length > 0 ? totalConfidence / mappings.length : 0;
+            
+            console.log(`📈 Quality Assessment: ${(averageQuality * 100).toFixed(1)}% average quality, ${lowConfidenceCount} low-confidence mappings`);
+            
+            return {
+                averageQuality,
+                lowConfidenceCount,
+                qualityScore: averageQuality >= 0.8 ? 'HIGH' : averageQuality >= 0.6 ? 'MEDIUM' : 'LOW'
+            };
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Validator - Upload Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: hsl(0 0% 100%);
+            min-height: 100vh;
+            padding: 1.5rem;
+            color: hsl(222.2 84% 4.9%);
+        }
+        
+        :root {
+            --primary: 222.2 84% 4.9%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --success: 142.1 76.2% 36.3%;
+            --warning: 47.9 95.8% 53.1%;
+            --destructive: 0 84.2% 60.2%;
+            --info: 221.2 83.2% 53.3%;
+            --background: 0 0% 100%;
+            --card: 0 0% 100%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 222.2 84% 4.9%;
+        }
+        
+        h1 {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+            font-weight: 700;
+        }
+        h2 {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+            font-weight: 600;
+        }
+        h3 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: hsl(222.2 84% 4.9%);
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: hsl(215.4 16.3% 46.9%);
+            font-size: 1.125rem;
+        }
+        
+        .uoc-summary {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .uoc-summary h2 {
+            color: hsl(222.2 84% 4.9%);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .uoc-summary h2::before {
+            content: "📋";
+            margin-right: 10px;
+        }
+        
+        .uoc-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-card {
+            background: hsl(210 40% 96%);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            text-align: center;
+        }
+        
+        .detail-card h3 {
+            color: hsl(222.2 84% 4.9%);
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-card p {
+            color: hsl(215.4 16.3% 46.9%);
+            font-size: 0.875rem;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+        }
+        
+        .upload-section h2 {
+            color: hsl(222.2 84% 4.9%);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .upload-section h2::before {
+            content: "📄";
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: hsl(222.2 84% 4.9%);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .upload-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .upload-option {
+            flex: 1;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .upload-option:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .upload-option input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .upload-option label {
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            margin-top: 10px;
+        }
+        
+        .text-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 20px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #f8f9ff;
+            border-color: #5a6fd8;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .assessment-type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .assessment-type-option {
+            cursor: pointer;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .assessment-type-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
+        }
+        
+        .assessment-type-option input[type="radio"] {
+            display: none;
+        }
+        
+        .assessment-type-option input[type="radio"]:checked + .option-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: -15px;
+        }
+        
+        .option-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .option-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .option-description {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .progress-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step.completed .step-number {
+            background: #28a745;
+        }
+        
+        .step.current .step-number {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .step-title {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .step.completed .step-title {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .step.current .step-title {
+            color: #ffc107;
+            font-weight: 600;
+        }
+        
+        .clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .clickable:hover {
+            background: #e9ecef !important;
+            transform: translateY(-2px);
+        }
+        
+        .details-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .detail-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .detail-item strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assessment Validator</h1>
+            <p>Computer-assisted Assessment Mapping Tool</p>
+        </div>
+        
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-title">Fetch UoC Data</div>
+            </div>
+            <div class="step current">
+                <div class="step-number">2</div>
+                <div class="step-title">Upload Assessment</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Process & Map</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">Validate</div>
+            </div>
+        </div>
+        
+        <!-- UoC Summary -->
+        <div class="uoc-summary">
+            <h2>Unit of Competency Summary</h2>
+            <div class="uoc-details">
+                <div class="detail-card">
+                    <h3>{{ uoc_code }}</h3>
+                    <p>Unit Code</p>
+                </div>
+                <div class="detail-card clickable" onclick="showDetails('elements')">
+                    <h3>{{ uoc_data.elements|length }}</h3>
+                    <p>Elements</p>
+                    <small>Click to view details</small>
+                </div>
+                <div class="detail-card clickable" onclick="showDetails('performance_criteria')">
+                    <h3>{{ uoc_data.performance_criteria|length }}</h3>
+                    <p>Performance Criteria</p>
+                    <small>Click to view details</small>
+                </div>
+                <div class="detail-card clickable" onclick="showDetails('performance_evidence')">
+                    <h3>{{ uoc_data.performance_evidence|length }}</h3>
+                    <p>Performance Evidence</p>
+                    <small>Click to view details</small>
+                </div>
+                <div class="detail-card clickable" onclick="showDetails('knowledge_evidence')">
+                    <h3>{{ uoc_data.knowledge_evidence|length }}</h3>
+                    <p>Knowledge Evidence</p>
+                    <small>Click to view details</small>
+                </div>
+            </div>
+            <p><strong>Title:</strong> {{ uoc_data.title }}</p>
+            
+            <!-- Hidden details sections -->
+            <div id="elements-details" class="details-section" style="display: none;">
+                <h3>📋 Elements</h3>
+                {% for element in uoc_data.elements %}
+                <div class="detail-item">
+                    <strong>{{ element.code }}:</strong> {{ element.description }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div id="performance_criteria-details" class="details-section" style="display: none;">
+                <h3>📊 Performance Criteria</h3>
+                {% for pc in uoc_data.performance_criteria %}
+                <div class="detail-item">
+                    <strong>{{ pc.code }}:</strong> {{ pc.description }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div id="performance_evidence-details" class="details-section" style="display: none;">
+                <h3>📈 Performance Evidence</h3>
+                {% for pe in uoc_data.performance_evidence %}
+                <div class="detail-item">
+                    <strong>{{ pe.code }}:</strong> {{ pe.description }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div id="knowledge_evidence-details" class="details-section" style="display: none;">
+                <h3>🧠 Knowledge Evidence</h3>
+                {% for ke in uoc_data.knowledge_evidence %}
+                <div class="detail-item">
+                    <strong>{{ ke.code }}:</strong> {{ ke.description }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h2>Upload Assessment Document</h2>
+            <p>Select the assessment type and upload your document to extract questions.</p>
+            
+            <form id="uploadForm" action="/process-assessment" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Assessment Type *</label>
+                    <div class="assessment-type-options">
+                        <label class="assessment-type-option">
+                            <input type="radio" name="assessment_type" value="KBA" required>
+                            <div class="option-content">
+                                <span class="option-icon">🧠</span>
+                                <span class="option-title">Knowledge Based Assessment (KBA)</span>
+                                <span class="option-description">Written tests, multiple choice, theory questions</span>
+                            </div>
+                        </label>
+                        
+                        <label class="assessment-type-option">
+                            <input type="radio" name="assessment_type" value="SBA" required>
+                            <div class="option-content">
+                                <span class="option-icon">🎭</span>
+                                <span class="option-title">Simulation Based Assessment (SBA)</span>
+                                <span class="option-description">Role plays, scenarios, simulated environments</span>
+                            </div>
+                        </label>
+                        
+                        <label class="assessment-type-option">
+                            <input type="radio" name="assessment_type" value="PEP" required>
+                            <div class="option-content">
+                                <span class="option-icon">🏢</span>
+                                <span class="option-title">Workplace Assessment (PEP)</span>
+                                <span class="option-description">Real workplace activities, on-the-job assessment</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Assessment Document *</label>
+                    <div class="upload-options">
+                        <div class="upload-option">
+                            <input type="radio" name="upload_method" value="file" id="file_upload" checked>
+                            <label for="file_upload">📁 Upload File</label>
+                            <div class="file-upload">
+                                <input type="file" id="assessment_file" name="assessment_file" 
+                                       accept=".pdf,.docx,.doc" class="file-input">
+                                <label for="assessment_file" class="file-upload-label">
+                                    📄 Click to select file or drag and drop here
+                                    <br><small style="color: #999;">Supports PDF, DOCX, DOC (max 16MB)</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-option">
+                            <input type="radio" name="upload_method" value="text" id="text_paste">
+                            <label for="text_paste">📋 Paste Text</label>
+                            <textarea name="assessment_text" placeholder="Copy and paste your assessment content here..." 
+                                      class="text-input" style="display: none;"></textarea>
+                            <small style="color: #999;">Paste raw text for better LLM processing</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Extract Questions
+                </button>
+            </form>
+            
+            <div class="loading" id="loading" style="display: none;">
+                <div class="progress-overlay">
+                    <div class="progress-content">
+                        <div class="progress-header">
+                            <div style="font-size: 24px; margin-bottom: 10px;">🔄 Processing Assessment</div>
+                            <div id="extractionStatus" style="color: #666; margin-bottom: 15px;">Initializing extraction process...</div>
+                        </div>
+                        
+                        <div style="
+                            width: 100%;
+                            height: 8px;
+                            background: #f0f0f0;
+                            border-radius: 4px;
+                            overflow: hidden;
+                            margin-bottom: 15px;
+                        ">
+                            <div id="extractionProgressBar" style="
+                                width: 0%;
+                                height: 100%;
+                                background: linear-gradient(90deg, #667eea, #764ba2);
+                                transition: width 0.3s ease;
+                            "></div>
+                        </div>
+                        
+                        <div id="extractionDetails" style="
+                            font-size: 14px;
+                            color: #666;
+                            text-align: left;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            background: #f8f9fa;
+                            padding: 10px;
+                            border-radius: 5px;
+                            margin-top: 15px;
+                        "></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="error" id="error"></div>
+        </div>
+        
+        <a href="/" class="back-btn">← Back to Start</a>
+    </div>
+    
+    <script>
+        // Toggle between file upload and text paste
+        document.querySelectorAll('input[name="upload_method"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const fileUpload = document.querySelector('.file-upload');
+                const textInput = document.querySelector('.text-input');
+                const fileInput = document.getElementById('assessment_file');
+                
+                if (this.value === 'file') {
+                    fileUpload.style.display = 'block';
+                    textInput.style.display = 'none';
+                    fileInput.required = true;
+                    textInput.required = false;
+                } else {
+                    fileUpload.style.display = 'none';
+                    textInput.style.display = 'block';
+                    fileInput.required = false;
+                    textInput.required = true;
+                }
+            });
+        });
+        
+        // File upload preview
+        document.getElementById('assessment_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.querySelector('.file-upload-label');
+            
+            if (file) {
+                label.innerHTML = `📄 ${file.name}<br><small style="color: #999;">${(file.size / 1024 / 1024).toFixed(2)} MB</small>`;
+            } else {
+                label.innerHTML = `📄 Click to select file or drag and drop here<br><small style="color: #999;">Supports PDF, DOCX, DOC (max 16MB)</small>`;
+            }
+        });
+        
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('Form submission started'); // Debug log
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            
+            // Validate form
+            const uploadMethod = document.querySelector('input[name="upload_method"]:checked');
+            const assessmentType = document.querySelector('input[name="assessment_type"]:checked');
+            const file = document.getElementById('assessment_file').files[0];
+            const textInput = document.querySelector('.text-input');
+            
+            console.log('Upload method:', uploadMethod ? uploadMethod.value : 'none'); // Debug log
+            console.log('Assessment type:', assessmentType ? assessmentType.value : 'none'); // Debug log
+            console.log('File selected:', file ? file.name : 'none'); // Debug log
+            console.log('Text input:', textInput ? textInput.value.substring(0, 50) + '...' : 'none'); // Debug log
+            
+            if (!assessmentType) {
+                showError('Please select an assessment type');
+                return;
+            }
+            
+            if (!uploadMethod) {
+                showError('Please select an upload method');
+                return;
+            }
+            
+            if (uploadMethod.value === 'file') {
+                if (!file) {
+                    showError('Please select an assessment file');
+                    return;
+                }
+            } else {
+                if (!textInput.value.trim()) {
+                    showError('Please paste assessment text');
+                    return;
+                }
+            }
+            
+            console.log('Form validation passed, submitting...'); // Debug log
+            
+            // Show extraction progress
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            
+            // Progress tracking variables
+            const progressBar = document.getElementById('extractionProgressBar');
+            const extractionStatus = document.getElementById('extractionStatus');
+            const extractionDetails = document.getElementById('extractionDetails');
+            
+            // Update progress function
+            function updateExtractionProgress(percent, status, details = '') {
+                progressBar.style.width = percent + '%';
+                extractionStatus.textContent = status;
+                
+                if (details) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    extractionDetails.innerHTML += '<div style="margin-bottom: 5px;"><span style="color: #667eea;">[' + timestamp + ']</span> ' + details + '</div>';
+                    extractionDetails.scrollTop = extractionDetails.scrollHeight;
+                }
+            }
+            
+            // Simulate extraction progress
+            const extractionSteps = [
+                { percent: 10, status: 'Preparing document for analysis...', details: 'Validating file format and content' },
+                { percent: 25, status: 'Initializing extraction agent...', details: 'Loading AI models and processing context' },
+                { percent: 40, status: 'Analyzing document content...', details: 'Identifying question patterns and structures' },
+                { percent: 60, status: 'Extracting assessment questions...', details: 'Processing text and identifying question boundaries' },
+                { percent: 80, status: 'Validating extracted questions...', details: 'Checking question quality and completeness' },
+                { percent: 95, status: 'Finalizing extraction...', details: 'Preparing questions for review' },
+                { percent: 100, status: 'Extraction complete!', details: 'Redirecting to question review...' }
+            ];
+            
+            let stepIndex = 0;
+            const extractionInterval = setInterval(() => {
+                if (stepIndex < extractionSteps.length) {
+                    const step = extractionSteps[stepIndex];
+                    updateExtractionProgress(step.percent, step.status, step.details);
+                    stepIndex++;
+                }
+            }, 2000); // Slower than mapping to be more realistic
+            
+            // Submit form
+            const formData = new FormData(this);
+            
+            console.log('FormData created, sending request...'); // Debug log
+            
+            fetch('/process-assessment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Response received:', response.status); // Debug log
+                clearInterval(extractionInterval);
+                updateExtractionProgress(100, 'Processing server response...', 'Extraction completed successfully');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data); // Debug log
+                if (data.success) {
+                    updateExtractionProgress(100, 'Success!', 'Redirecting to question review...');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1000);
+                } else {
+                    clearInterval(extractionInterval);
+                    updateExtractionProgress(100, 'Error occurred', 'Extraction failed: ' + (data.error || 'Unknown error'));
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        showError(data.error || 'An error occurred while processing the assessment');
+                    }, 2000);
+                }
+            })
+            .catch(err => {
+                console.error('Fetch error:', err); // Debug log
+                clearInterval(extractionInterval);
+                updateExtractionProgress(100, 'Error occurred', 'Network error: ' + err.message);
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    showError('Network error occurred while processing the assessment');
+                }, 2000);
+                showError('An error occurred. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Extract Questions';
+                loading.style.display = 'none';
+            });
+        });
+        
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+        
+        function showDetails(type) {
+            // Hide all detail sections
+            const allSections = document.querySelectorAll('.details-section');
+            allSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show the selected section
+            const selectedSection = document.getElementById(type + '-details');
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+                
+                // Scroll to the section
+                selectedSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html> 

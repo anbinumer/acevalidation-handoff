@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Extracted Questions - Assessment Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: hsl(0 0% 100%);
+            color: hsl(222.2 84% 4.9%);
+            line-height: 1.6;
+        }
+        
+        :root {
+            --primary: 222.2 84% 4.9%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --success: 142.1 76.2% 36.3%;
+            --warning: 47.9 95.8% 53.1%;
+            --destructive: 0 84.2% 60.2%;
+            --info: 221.2 83.2% 53.3%;
+            --background: 0 0% 100%;
+            --card: 0 0% 100%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 222.2 84% 4.9%;
+        }
+        
+        h1 {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+            font-weight: 700;
+        }
+        h2 {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+            font-weight: 600;
+        }
+        h3 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 600;
+        }
+        small, .small {
+            font-size: 0.9em;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, hsl(222.2 84% 4.9%) 0%, hsl(221.2 83.2% 53.3%) 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 1.5rem;
+        }
+        
+        .summary-section {
+            background: hsl(210 40% 96%);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+        
+        .summary-item h3 {
+            color: hsl(222.2 84% 4.9%);
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .summary-item p {
+            color: hsl(215.4 16.3% 46.9%);
+            font-size: 0.875rem;
+        }
+        
+        .questions-section {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid hsl(214.3 31.8% 91.4%);
+        }
+        
+        .questions-header h2 {
+            color: hsl(222.2 84% 4.9%);
+            font-size: 1.8em;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(214.3 31.8% 91.4%);
+            border-radius: 0.375rem;
+            background: white;
+            color: hsl(215.4 16.3% 46.9%);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .filter-btn.active {
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+            border-color: hsl(222.2 84% 4.9%);
+        }
+        
+        .questions-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .question-item {
+            background: hsl(210 40% 96%);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border-left: 4px solid hsl(222.2 84% 4.9%);
+            transition: all 0.2s ease;
+        }
+        
+        .question-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.15);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .question-id {
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .question-type-display {
+            background: hsl(142.1 76.2% 36.3%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .btn-edit-type, .btn-save-type {
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+            border: none;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .btn-edit-type:hover, .btn-save-type:hover {
+            background: hsl(222.2 84% 4.9% / 0.9);
+        }
+        
+        .btn-edit, .btn-save, .btn-delete {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .btn-edit {
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+        }
+        
+        .btn-save {
+            background: hsl(142.1 76.2% 36.3%);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: hsl(0 84.2% 60.2%);
+            color: white;
+        }
+        
+        .btn-edit:hover, .btn-save:hover, .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.15);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: hsl(222.2 84% 4.9% / 0.9);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: hsl(210 40% 96%);
+            color: hsl(222.2 84% 4.9%);
+            border: 1px solid hsl(214.3 31.8% 91.4%);
+        }
+        
+        .btn-secondary:hover {
+            background: hsl(210 40% 96% / 0.8);
+            transform: translateY(-1px);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: hsl(222.2 84% 4.9%);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        /* Renumbering Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .renumbering-table {
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .renumbering-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        .renumbering-table th,
+        .renumbering-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .renumbering-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .renumbering-table input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .renumbering-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .btn-renumber {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-renumber:hover {
+            background: #218838;
+        }
+        
+        .question-text {
+            color: #333;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .text-edit {
+            width: 100%;
+            min-height: 60px;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .confidence-high {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .confidence-medium {
+            color: #ffc107;
+            font-weight: 600;
+        }
+        
+        .confidence-low {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .flags {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .sub-questions {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #667eea;
+        }
+        
+        .sub-questions h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .sub-question {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .sub-question-id {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .sub-question-text {
+            color: #333;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        
+        .question-choices {
+            background: #e8f4fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #17a2b8;
+        }
+        
+        .question-choices h5 {
+            color: #17a2b8;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .choice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 6px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .choice-letter {
+            background: #17a2b8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .choice-text {
+            color: #333;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .questions-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .question-filters {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Review Extracted Questions</h1>
+            <p>Step 3: Review the questions extracted from your assessment document</p>
+        </div>
+        
+        <div class="content">
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <h2>Assessment Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>{{ session_data.uoc_code }}</h3>
+                        <p>Unit of Competency</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>{{ session_data.assessment_type }}</h3>
+                        <p>Assessment Type</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>{{ session_data.questions|length }}</h3>
+                        <p>Questions Extracted</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>{{ session_data.filename }}</h3>
+                        <p>Source Document</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions Section -->
+            <div class="questions-section">
+                <div class="questions-header">
+                    <h2>Extracted Questions</h2>
+                    <div class="question-filters">
+                        <button class="filter-btn active" onclick="filterQuestions('all')">All</button>
+                        <button class="filter-btn" onclick="filterQuestions('mcq')">MCQ</button>
+                        <button class="filter-btn" onclick="filterQuestions('short_answer')">Short Answer</button>
+                        <button class="filter-btn" onclick="filterQuestions('essay')">Essay</button>
+                        <button class="filter-btn" onclick="filterQuestions('scenario')">Scenario</button>
+                        <button class="filter-btn" onclick="filterQuestions('practical')">Practical</button>
+                        <button class="filter-btn" onclick="filterQuestions('unknown')">Unknown</button>
+                    </div>
+                </div>
+                
+                <div class="questions-list" id="questionsList">
+                    {% for question in session_data.questions %}
+                    <div class="question-item" data-type="{{ question.get('type', 'mixed') }}" data-question-id="{{ question.id }}">
+                        <div class="question-header">
+                            <span class="question-id">{{ question.id }}</span>
+                            <div class="question-type-container">
+                                <span class="question-type-display">{{ question.get('type', 'unknown') }}</span>
+                                <select class="question-type-edit" style="display: none;">
+                                    <option value="mcq" {% if question.get('type') == 'mcq' %}selected{% endif %}>MCQ</option>
+                                    <option value="short_answer" {% if question.get('type') == 'short_answer' %}selected{% endif %}>Short Answer</option>
+                                    <option value="essay" {% if question.get('type') == 'essay' %}selected{% endif %}>Essay</option>
+                                    <option value="scenario" {% if question.get('type') == 'scenario' %}selected{% endif %}>Scenario</option>
+                                    <option value="practical" {% if question.get('type') == 'practical' %}selected{% endif %}>Practical</option>
+                                    <option value="unknown" {% if question.get('type') == 'unknown' %}selected{% endif %}>Unknown</option>
+                                </select>
+                                <button class="btn-edit-type" onclick="editQuestionType({{ loop.index }})">Edit</button>
+                                <button class="btn-save-type" onclick="saveQuestionType({{ loop.index }})" style="display: none;">Save</button>
+                            </div>
+                        </div>
+                        <div class="question-text" id="question-text-{{ loop.index }}">
+                            <span class="text-display">{{ question.text }}</span>
+                            <textarea class="text-edit" style="display: none;">{{ question.text }}</textarea>
+                        </div>
+                        {% if question.get('choices') %}
+                        <div class="question-choices">
+                            <h5>Choices:</h5>
+                            {% for choice in question.choices %}
+                            <div class="choice-item">
+                                <span class="choice-letter">{{ loop.index|string|upper }}</span>
+                                <span class="choice-text">{{ choice }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if question.get('sub_questions') %}
+                        <div class="sub-questions">
+                            <h4>Sub-questions:</h4>
+                            {% for sub_q in question.sub_questions %}
+                            <div class="sub-question">
+                                <span class="sub-question-id">{{ sub_q.id }}</span>
+                                <span class="sub-question-text">{{ sub_q.text }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="question-actions">
+                            <button class="btn-edit" onclick="editQuestion({{ loop.index }})">Edit</button>
+                            <button class="btn-save" onclick="saveQuestion({{ loop.index }})" style="display: none;">Save</button>
+                            <button class="btn-delete" onclick="deleteQuestion({{ loop.index }})">Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-renumber" onclick="showRenumberingTool()">
+                    Renumber Questions
+                </button>
+                <a href="/upload-assessment" class="btn btn-secondary">
+                    Back to Upload
+                </a>
+                <button class="btn btn-primary" onclick="proceedToMapping()">
+                    Process Mapping
+                </button>
+            </div>
+            
+            <a href="/" class="back-btn">Back to Start</a>
+        </div>
+    </div>
+    
+    <!-- Renumbering Modal -->
+    <div id="renumberingModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔢 Question Renumbering</h3>
+                <span class="close" onclick="closeRenumberingTool()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Update question numbers to match your source document:</p>
+                <div class="renumbering-table">
+                    <table id="renumberingTable">
+                        <thead>
+                            <tr>
+                                <th>Current #</th>
+                                <th>New #</th>
+                                <th>Question Preview</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="renumberingTableBody">
+                            <!-- Rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="renumbering-actions">
+                    <button class="btn btn-secondary" onclick="autoRenumber()">🔄 Auto-Renumber</button>
+                    <button class="btn btn-primary" onclick="applyRenumbering()">✅ Apply Changes</button>
+                    <button class="btn btn-danger" onclick="closeRenumberingTool()">❌ Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function filterQuestions(type) {
+            const questions = document.querySelectorAll('.question-item');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            // Update active filter button
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter questions
+            questions.forEach(question => {
+                const questionType = question.dataset.type;
+                
+                if (type === 'all' || questionType === type) {
+                    question.style.display = 'block';
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+        }
+        
+        // Question editing functionality
+        function editQuestion(questionIndex) {
+            const questionText = document.getElementById(`question-text-${questionIndex}`);
+            const textDisplay = questionText.querySelector('.text-display');
+            const textEdit = questionText.querySelector('.text-edit');
+            const editBtn = document.querySelector(`[onclick="editQuestion(${questionIndex})"]`);
+            const saveBtn = document.querySelector(`[onclick="saveQuestion(${questionIndex})"]`);
+            
+            textDisplay.style.display = 'none';
+            textEdit.style.display = 'block';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            textEdit.focus();
+        }
+        
+        function saveQuestion(questionIndex) {
+            const questionText = document.getElementById(`question-text-${questionIndex}`);
+            const textDisplay = questionText.querySelector('.text-display');
+            const textEdit = questionText.querySelector('.text-edit');
+            const editBtn = document.querySelector(`[onclick="editQuestion(${questionIndex})"]`);
+            const saveBtn = document.querySelector(`[onclick="saveQuestion(${questionIndex})"]`);
+            
+            textDisplay.textContent = textEdit.value;
+            textDisplay.style.display = 'block';
+            textEdit.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+        }
+        
+        function deleteQuestion(questionIndex) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                const questionItem = document.querySelector(`#question-text-${questionIndex}`).closest('.question-item');
+                questionItem.style.opacity = '0.5';
+                questionItem.style.pointerEvents = 'none';
+                questionItem.querySelector('.btn-delete').textContent = '🗑️ Deleted';
+                questionItem.querySelector('.btn-delete').disabled = true;
+            }
+        }
+        
+        // Question type editing functionality
+        function editQuestionType(questionIndex) {
+            const questionItem = document.querySelector(`#question-text-${questionIndex}`).closest('.question-item');
+            const typeDisplay = questionItem.querySelector('.question-type-display');
+            const typeEdit = questionItem.querySelector('.question-type-edit');
+            const editTypeBtn = questionItem.querySelector('.btn-edit-type');
+            const saveTypeBtn = questionItem.querySelector('.btn-save-type');
+            
+            typeDisplay.style.display = 'none';
+            typeEdit.style.display = 'inline-block';
+            editTypeBtn.style.display = 'none';
+            saveTypeBtn.style.display = 'inline-block';
+            typeEdit.focus();
+        }
+        
+        function saveQuestionType(questionIndex) {
+            const questionItem = document.querySelector(`#question-text-${questionIndex}`).closest('.question-item');
+            const typeDisplay = questionItem.querySelector('.question-type-display');
+            const typeEdit = questionItem.querySelector('.question-type-edit');
+            const editTypeBtn = questionItem.querySelector('.btn-edit-type');
+            const saveTypeBtn = questionItem.querySelector('.btn-save-type');
+            
+            const newType = typeEdit.value;
+            typeDisplay.textContent = newType;
+            typeDisplay.style.display = 'inline-block';
+            typeEdit.style.display = 'none';
+            editTypeBtn.style.display = 'inline-block';
+            saveTypeBtn.style.display = 'none';
+            
+            // Update the data-type attribute for filtering
+            questionItem.dataset.type = newType;
+        }
+        
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionItems = document.querySelectorAll('.question-item');
+            
+            questionItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.borderLeftColor = '#28a745';
+                    setTimeout(() => {
+                        this.style.borderLeftColor = '#667eea';
+                    }, 200);
+                });
+            });
+        });
+        
+        // Renumbering functionality
+        function showRenumberingTool() {
+            const modal = document.getElementById('renumberingModal');
+            const tableBody = document.getElementById('renumberingTableBody');
+            
+            // Clear existing rows
+            tableBody.innerHTML = '';
+            
+            // Get all questions
+            const questions = document.querySelectorAll('.question-item');
+            
+            questions.forEach((question, index) => {
+                const questionId = question.querySelector('.question-id').textContent;
+                const questionText = question.querySelector('.question-text .text-display').textContent;
+                
+                // Extract current number from question ID
+                const currentNumber = questionId.replace('Q', '');
+                
+                // Create table row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${currentNumber}</td>
+                    <td><input type="number" value="${index + 1}" min="1" class="new-number"></td>
+                    <td>${questionText.substring(0, 60)}${questionText.length > 60 ? '...' : ''}</td>
+                    <td>
+                        <button class="btn-edit-row" onclick="editRow(this)">✏️</button>
+                        <button class="btn-delete-row" onclick="deleteRow(this)">🗑️</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeRenumberingTool() {
+            document.getElementById('renumberingModal').style.display = 'none';
+        }
+        
+        function autoRenumber() {
+            const inputs = document.querySelectorAll('.new-number');
+            inputs.forEach((input, index) => {
+                input.value = index + 1;
+            });
+        }
+        
+        function applyRenumbering() {
+            const rows = document.querySelectorAll('#renumberingTableBody tr');
+            const questions = document.querySelectorAll('.question-item');
+            
+            // Validate no duplicate numbers
+            const newNumbers = Array.from(document.querySelectorAll('.new-number')).map(input => parseInt(input.value));
+            const uniqueNumbers = new Set(newNumbers);
+            
+            if (uniqueNumbers.size !== newNumbers.length) {
+                alert('Error: Duplicate question numbers detected. Please ensure each question has a unique number.');
+                return;
+            }
+            
+            // Apply the new numbering
+            rows.forEach((row, index) => {
+                const newNumber = row.querySelector('.new-number').value;
+                const question = questions[index];
+                
+                // Update question ID
+                const questionId = question.querySelector('.question-id');
+                questionId.textContent = `Q${newNumber}`;
+                
+                // Update data attribute for filtering
+                question.dataset.questionId = `Q${newNumber}`;
+            });
+            
+            closeRenumberingTool();
+            alert('Question numbering updated successfully!');
+        }
+        
+        function editRow(button) {
+            const row = button.closest('tr');
+            const input = row.querySelector('.new-number');
+            input.focus();
+        }
+        
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+        }
+        
+        // Mapping process functionality
+        function proceedToMapping() {
+            console.log('🚀 Starting mapping process...');
+            
+            // Create progress overlay
+            const progressOverlay = document.createElement('div');
+            progressOverlay.id = 'progressOverlay';
+            progressOverlay.style.cssText = 
+                'position: fixed;' +
+                'top: 0;' +
+                'left: 0;' +
+                'width: 100%;' +
+                'height: 100%;' +
+                'background: rgba(0, 0, 0, 0.8);' +
+                'display: flex;' +
+                'justify-content: center;' +
+                'align-items: center;' +
+                'z-index: 9999;';
+            
+            progressOverlay.innerHTML = 
+                '<div style="' +
+                    'background: white;' +
+                    'padding: 30px;' +
+                    'border-radius: 10px;' +
+                    'text-align: center;' +
+                    'max-width: 500px;' +
+                    'width: 90%;' +
+                '">' +
+                    '<div style="margin-bottom: 20px;">' +
+                        '<div style="font-size: 24px; margin-bottom: 10px;">🔄 Processing Mapping</div>' +
+                        '<div id="progressStatus" style="color: #666; margin-bottom: 15px;">Initializing mapping process...</div>' +
+                    '</div>' +
+                    
+                    '<div style="' +
+                        'width: 100%;' +
+                        'height: 8px;' +
+                        'background: #f0f0f0;' +
+                        'border-radius: 4px;' +
+                        'overflow: hidden;' +
+                        'margin-bottom: 15px;' +
+                    '">' +
+                        '<div id="progressBar" style="' +
+                            'width: 0%;' +
+                            'height: 100%;' +
+                            'background: linear-gradient(90deg, #007bff, #0056b3);' +
+                            'transition: width 0.3s ease;' +
+                        '"></div>' +
+                    '</div>' +
+                    
+                    '<div id="progressDetails" style="' +
+                        'font-size: 14px;' +
+                        'color: #666;' +
+                        'text-align: left;' +
+                        'max-height: 200px;' +
+                        'overflow-y: auto;' +
+                        'background: #f8f9fa;' +
+                        'padding: 10px;' +
+                        'border-radius: 5px;' +
+                        'margin-top: 15px;' +
+                    '"></div>' +
+                '</div>';
+            
+            document.body.appendChild(progressOverlay);
+            
+            // Progress tracking variables
+            let progress = 0;
+            const progressBar = document.getElementById('progressBar');
+            const progressStatus = document.getElementById('progressStatus');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            // Update progress function
+            function updateProgress(percent, status, details = '') {
+                progress = Math.min(percent, 100);
+                progressBar.style.width = progress + '%';
+                progressStatus.textContent = status;
+                
+                if (details) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    progressDetails.innerHTML += '<div style="margin-bottom: 5px;"><span style="color: #007bff;">[' + timestamp + ']</span> ' + details + '</div>';
+                    progressDetails.scrollTop = progressDetails.scrollHeight;
+                }
+            }
+            
+            // Simulate progress updates with more realistic timing
+            const progressSteps = [
+                { percent: 5, status: 'Preparing questions for mapping...', details: 'Validating question data structure' },
+                { percent: 15, status: 'Initializing mapping agent...', details: 'Loading UoC data and assessment context' },
+                { percent: 25, status: 'Analyzing question content...', details: 'Processing question text and context' },
+                { percent: 35, status: 'Generating competency mappings...', details: 'Mapping questions to UoC elements and criteria' },
+                { percent: 50, status: 'Processing question 1/8...', details: 'Analyzing first question for competency mapping' },
+                { percent: 60, status: 'Processing question 2/8...', details: 'Analyzing second question for competency mapping' },
+                { percent: 70, status: 'Processing question 3/8...', details: 'Analyzing third question for competency mapping' },
+                { percent: 80, status: 'Processing question 4/8...', details: 'Analyzing fourth question for competency mapping' },
+                { percent: 85, status: 'Processing question 5/8...', details: 'Analyzing fifth question for competency mapping' },
+                { percent: 90, status: 'Processing question 6/8...', details: 'Analyzing sixth question for competency mapping' },
+                { percent: 92, status: 'Processing question 7/8...', details: 'Analyzing seventh question for competency mapping' },
+                { percent: 95, status: 'Processing question 8/8...', details: 'Analyzing final question for competency mapping' },
+                { percent: 98, status: 'Calculating confidence scores...', details: 'Evaluating mapping accuracy and relevance' },
+                { percent: 100, status: 'Finalizing results...', details: 'Preparing dashboard data and statistics' }
+            ];
+            
+            let stepIndex = 0;
+            const progressInterval = setInterval(() => {
+                if (stepIndex < progressSteps.length) {
+                    const step = progressSteps[stepIndex];
+                    updateProgress(step.percent, step.status, step.details);
+                    stepIndex++;
+                }
+            }, 3000); // Slower timing to match actual processing time
+            
+            // Collect any updated questions
+            const updatedQuestions = [];
+            const questionItems = document.querySelectorAll('.question-item');
+            
+            console.log(`📋 Found ${questionItems.length} question items`);
+            
+            questionItems.forEach((item, index) => {
+                const questionId = item.querySelector('.question-id').textContent;
+                const questionText = item.querySelector('.text-display').textContent;
+                const questionType = item.querySelector('.question-type-display').textContent;
+                
+                // Only include questions that haven't been deleted
+                if (!item.style.opacity || item.style.opacity !== '0.5') {
+                    updatedQuestions.push({
+                        id: questionId,
+                        text: questionText,
+                        type: questionType
+                    });
+                }
+            });
+            
+            console.log(`📋 Sending ${updatedQuestions.length} questions to mapping endpoint`);
+            console.log('📋 Questions data:', updatedQuestions);
+            
+            // Call the mapping endpoint
+            fetch(`/proceed-to-mapping/{{ session_id }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    questions: updatedQuestions
+                })
+            })
+            .then(response => {
+                console.log('📋 Response status:', response.status);
+                clearInterval(progressInterval);
+                updateProgress(100, 'Mapping complete!', 'Processing server response...');
+                return response.json();
+            })
+            .then(data => {
+                console.log('📋 Response data:', data);
+                if (data.success) {
+                    console.log('✅ Mapping successful, redirecting to:', data.redirect_url);
+                    
+                    // Check for API issues
+                    if (data.api_issues) {
+                        console.warn('⚠️ API issues detected during mapping');
+                        updateProgress(100, 'Mapping completed with API issues', 
+                            '⚠️ ' + data.fallback_count + ' questions used fallback mappings due to API rate limiting. ' +
+                            'Results may be less accurate than usual.');
+                        
+                        // Show warning to user
+                        setTimeout(() => {
+                            const warningMsg = '⚠️ Mapping completed successfully, but ' + data.fallback_count + ' questions used fallback mappings due to API rate limiting. ' +
+                                             'The results may be less accurate than usual. Consider trying again later for better accuracy.';
+                            if (confirm(warningMsg + '\n\nClick OK to proceed to dashboard, or Cancel to stay on this page.')) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                document.body.removeChild(progressOverlay);
+                            }
+                        }, 2000);
+                    } else {
+                        updateProgress(100, 'Success!', 'Redirecting to dashboard...');
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1000);
+                    }
+                } else {
+                    console.error('❌ Mapping failed:', data.error);
+                    clearInterval(progressInterval);
+                    updateProgress(100, 'Error occurred', `Mapping failed: ${data.error || 'Unknown error'}`);
+                    setTimeout(() => {
+                        document.body.removeChild(progressOverlay);
+                        alert('Error: ' + (data.error || 'Mapping failed'));
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Network error:', error);
+                clearInterval(progressInterval);
+                updateProgress(100, 'Error occurred', `Network error: ${error.message}`);
+                setTimeout(() => {
+                    document.body.removeChild(progressOverlay);
+                    alert('Error processing mapping. Please try again.');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html> 
